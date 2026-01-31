@@ -18,8 +18,8 @@ public class DataBackupLogEntity {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "filename")
-    private String filename;
+    @Column(name = "file_name")
+    private String fileName;
 
     @Column(name = "file_size")
     private Integer fileSize;
