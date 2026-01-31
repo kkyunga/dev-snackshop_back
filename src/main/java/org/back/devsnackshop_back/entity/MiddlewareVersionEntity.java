@@ -1,0 +1,18 @@
+package org.back.devsnackshop_back.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Data @AllArgsConstructor @NoArgsConstructor @Builder @Entity
+@Table(name = "middleware_versions")
+public class MiddlewareVersionEntity {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "middleware_id")
+    private Long middlewareId;
+
+    @Column(name = "version")
+    private String version;
+}
