@@ -9,10 +9,13 @@ version = '0.0.1-SNAPSHOT'
 description = 'dev-snackshop_back'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+//    toolchain {
+//        languageVersion = JavaLanguageVersion.of(17)
+//    }
 }
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 configurations {
     compileOnly {
