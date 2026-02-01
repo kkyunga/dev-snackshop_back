@@ -49,6 +49,9 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // DataFaker(더미데이터 생성)
+    implementation 'net.datafaker:datafaker:2.2.2'
+
     // Test & Dev
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
