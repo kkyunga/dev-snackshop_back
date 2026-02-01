@@ -10,9 +10,12 @@ public class MiddlewareEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "middleware_type")
+    private String middlewareType;
+
     @Column(name = "middleware_name")
     private String middlewareName;
 
-    @Column(name = "middleware_type")
-    private String middlewareType;
+    @Column(name = "version")
+    private String version;
 }
