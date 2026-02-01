@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.10'
+    id 'org.springframework.boot' version '3.4.1' // 버전 3.5는 아직 최신이므로 3.4.x 안정화 버전 권장
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -9,17 +9,16 @@ version = '0.0.1-SNAPSHOT'
 description = 'dev-snackshop_back'
 
 java {
-//    toolchain {
-//        languageVersion = JavaLanguageVersion.of(17)
-//    }
+    sourceCompatibility = '17'
 }
-
-sourceCompatibility = '17'
-targetCompatibility = '17'
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+    }
+     all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
     }
 }
 
@@ -28,17 +27,53 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    // Web & DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.session:spring-session-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-web-services'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation ('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Querydsl (Jakarta 대응 버전)
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // Test & Dev
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+
+}
+
+// QueryDSL QClass 생성 경로 설정
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+sourceSets {
+    main.java.srcDirs += [ querydslDir ]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(querydslDir)
+}
+
+clean {
+    delete file(querydslDir)
 }
 
 tasks.named('test') {
