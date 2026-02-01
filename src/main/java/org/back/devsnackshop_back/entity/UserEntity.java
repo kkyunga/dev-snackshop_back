@@ -27,9 +27,6 @@ public class UserEntity {
     @Column(name = "salt")
     private String salt;
 
-    @Column(name = "privilege_id")
-    private Long privilegeId;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

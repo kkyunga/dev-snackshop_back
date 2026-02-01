@@ -24,6 +24,9 @@ public class UserOsInstanceEntity {
     @Column(name = "connection_method_id")
     private Long connectionMethodId;
 
+    @Column(name = "privilege_id")
+    private Long privilegeId;
+
     @Column(name = "alias")
     private String alias;
 
