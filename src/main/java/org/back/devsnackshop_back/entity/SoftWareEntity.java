@@ -20,9 +20,11 @@ public class SoftWareEntity {
     private String path;
     private String type; // 'auto', 'manual' 등
 
-    /**
-     * 핵심: 객체 참조(@ManyToOne) 대신 직접 ID값을 저장합니다.
-     */
-    @Column(name = "server_id")
-    private Long serverId;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="server_id")
+    private ServerEntity serverEntity;
+
+
+
+
 }

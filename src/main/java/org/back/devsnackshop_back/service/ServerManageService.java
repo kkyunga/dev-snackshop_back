@@ -24,20 +24,7 @@ public class ServerManageService {
 
     public void createServer(ServerCreateRequest request)
     {
-        //1. DTO를 ServerEntity로 변환 후 저장
-        ServerEntity server = serverManageMapper.toServerEntity(request );
-        serverRepository.save(server);
 
-
-        List<SoftWareEntity> softWareList = serverManageMapper.toSoftwareEntityList(request.getSoftwareToInstall());
-        if(softWareList!=null && !softWareList.isEmpty())
-        {
-            for(SoftWareEntity sw: softWareList){
-                sw.setServerId(server.getId());
-            }
-
-            softWareRepository.saveAll(softWareList);
-        }
 
     }
 }

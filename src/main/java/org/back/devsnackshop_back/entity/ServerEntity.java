@@ -1,7 +1,9 @@
 package org.back.devsnackshop_back.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+        import lombok.*;
+
+        import java.util.List;
 
 @Entity
 @Table(name = "servers")
@@ -29,4 +31,11 @@ public class ServerEntity {
 
     private String username;
     private String password;
+
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SoftWareEntity> softWareEntityList;
+
+
+
 }

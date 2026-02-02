@@ -21,7 +21,7 @@ public class ServerCreateRequest {
     private String authType;
     private String username;
     private String password;
-    private List<SoftwareDto> softwareToInstall = new ArrayList<>();
+    private List<SoftwareDto> softWareEntityList = new ArrayList<>();
 
     @Getter
     @ToString
