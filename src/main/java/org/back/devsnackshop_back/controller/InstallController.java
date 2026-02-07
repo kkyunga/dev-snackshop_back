@@ -18,7 +18,7 @@ public class InstallController {
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> requestInstall(@ModelAttribute InstallRequest dto) {
-        if (dto.getMiddlewares().size() >= 2 && (dto.getMwVersion() != null || !dto.getMwVersion().isEmpty())) {
+        if (dto.getMiddlewares().size() >= 2 && (dto.getMwVersion() != null && !dto.getMwVersion().isEmpty())) {
             return ResponseEntity.badRequest().body(Map.of("error", "미들웨어가 2개 이상일 때 버전을 지정할 수 없습니다."));
         }
 

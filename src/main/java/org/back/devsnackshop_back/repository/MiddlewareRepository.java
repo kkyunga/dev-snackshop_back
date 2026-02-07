@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface MiddlewareRepository extends JpaRepository<MiddlewareEntity, Long> {
     List<MiddlewareEntity> findByMiddlewareType(String type);
+    MiddlewareEntity findTopByMiddlewareNameOrderByVersionOrderDesc(String name);
 }

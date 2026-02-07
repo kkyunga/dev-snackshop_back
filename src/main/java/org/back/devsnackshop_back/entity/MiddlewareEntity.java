@@ -18,4 +18,7 @@ public class MiddlewareEntity {
 
     @Column(name = "version")
     private String version;
+
+    @Column(name = "version_order")
+    private int versionOrder;
 }

@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.middlewareManage.InstallRequest;
 import org.back.devsnackshop_back.entity.UserOsInstanceEntity;
+import org.back.devsnackshop_back.repository.MiddlewareRepository;
 import org.back.devsnackshop_back.repository.UserOsInstanceRepository;
+import org.back.devsnackshop_back.task.MiddlewareTask;
+import org.back.devsnackshop_back.task.MiddlewareTaskFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class MiddlewareService {
     private final UserOsInstanceRepository userOsInstanceRepository;
+    private final MiddlewareTaskFactory middlewareTaskFactory;
+
     private final Map<String, String> statusStore = new ConcurrentHashMap<>();
 
     @Async("installExecutor")
@@ -47,29 +52,11 @@ public class MiddlewareService {
             session.setConfig("StrictHostKeyChecking", "no");
             session.connect(15000);
 
-            if (dto.getInstallPath() != null && !dto.getInstallPath().isEmpty()) {
-                String checkCmd;
-                if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-                    checkCmd = String.format("echo '%s' | sudo -S [ -w \"%s\" ] && echo \"OK\" || echo \"NO_AUTH\"",
-                            dto.getPassword(), dto.getInstallPath());
-                } else {
-                    checkCmd = String.format("sudo [ -w \"%s\" ] && echo \"OK\" || echo \"NO_AUTH\"", dto.getInstallPath());
-                }
+            String finalCmd = buildFullScript(dto);
+            log.info("[{}] 최종 실행 명령어: \n{}", taskId, finalCmd);
 
-                String authResult = executeCommand(session, checkCmd).trim();
-                if (authResult.contains("NO_AUTH")) {
-                    statusStore.put(taskId, "FAILED: 해당 경로에 접근 권한이 없습니다.");
-                    return;
-                }
-            }
-
-            String fullScript = buildFullScript(dto);
-            log.info("[{}] 설치 시작: {}", taskId, fullScript);
-
-            executeCommand(session, fullScript);
-
+            executeCommand(session, finalCmd);
             statusStore.put(taskId, "SUCCESS");
-            log.info("[{}] 모든 미들웨어 설치 완료", taskId);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -85,43 +72,42 @@ public class MiddlewareService {
         return statusStore.getOrDefault(taskId, "NOT_FOUND");
     }
 
+    private String getSudoPrefix(InstallRequest dto) {
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            return String.format("echo '%s' | sudo -S ", dto.getPassword());
+        }
+        return "sudo ";
+    }
+
     private String buildFullScript(InstallRequest dto) {
         StringBuilder sb = new StringBuilder();
-        String os = dto.getOs().toLowerCase();
+        String sudoPrefix = getSudoPrefix(dto);
 
-        // 패스워드 주입이 필요한 경우 sudo 명령어 앞에 echo 추가
-        String sudoPrefix = (dto.getPassword() != null && !dto.getPassword().isEmpty())
-                ? String.format("echo '%s' | sudo -S ", dto.getPassword()) : "sudo ";
-
-        sb.append(sudoPrefix).append(getUpdateCommand(os)).append(" && ");
+        sb.append(sudoPrefix).append("apt-get update -y && ");
 
         for (int i = 0; i < dto.getMiddlewares().size(); i++) {
-            String mw = dto.getMiddlewares().get(i);
-            String ver = (dto.getMiddlewares().size() > 1) ? null : dto.getMwVersion();
-            sb.append(sudoPrefix).append(buildSingleInstallCmd(os, mw, ver));
+            String mwName = dto.getMiddlewares().get(i);
+            MiddlewareTask task = middlewareTaskFactory.getTask(mwName);
+            String version = dto.getMwVersion();
+
+            if (dto.getInstallPath() != null && !dto.getInstallPath().isEmpty()) {
+                sb.append(task.getBinaryInstallCommand(dto.getInstallPath(), version, sudoPrefix));
+            } else {
+                sb.append(task.getPackageInstallCommand(version, sudoPrefix));
+            }
+
             if (i < dto.getMiddlewares().size() - 1) sb.append(" && ");
         }
-        return sb.toString();
-    }
-
-    private String getUpdateCommand(String os) {
-        return (os.contains("ubuntu") || os.contains("debian")) ? "sudo apt-get update -y" : "sudo yum makecache";
-    }
-
-    private String buildSingleInstallCmd(String os, String mw, String version) {
-        String pkgMgr = (os.contains("ubuntu") || os.contains("debian")) ? "apt-get" : "yum";
-        String verSep = pkgMgr.equals("apt-get") ? "=" : "-";
-        if (version == null || version.isEmpty()) {
-            return String.format("sudo %s install -y %s", pkgMgr, mw);
-        } else {
-            return String.format("sudo %s install -y %s%s%s", pkgMgr, mw, verSep, version);
-        }
+            return sb.toString();
     }
 
     private String executeCommand(Session session, String command) throws Exception {
         ChannelExec channel = (ChannelExec) session.openChannel("exec");
         channel.setCommand(command);
+
+        channel.setErrStream(System.err);
         InputStream in = channel.getInputStream();
+
         channel.connect();
 
         StringBuilder output = new StringBuilder();
@@ -132,7 +118,11 @@ public class MiddlewareService {
                 if (i < 0) break;
                 output.append(new String(tmp, 0, i));
             }
-            if (channel.isClosed()) break;
+            if (channel.isClosed()) {
+                if (in.available() > 0) continue;
+                log.info("exit status: " + channel.getExitStatus());
+                break;
+            }
             Thread.sleep(100);
         }
         channel.disconnect();
