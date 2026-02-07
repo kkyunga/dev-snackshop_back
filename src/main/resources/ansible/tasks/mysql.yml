@@ -1,0 +1,18 @@
+- name: Install Specific MySQL Version
+  apt:
+    name: "mysql-server-{{ item.version }}"
+    state: present
+  when: item.version is defined and item.version != ""
+
+- name: Install Latest MySQL Server
+  apt:
+    name: mysql-server
+    state: latest
+  when: item.version is not defined or item.version == ""
+
+# 서비스 상태 확인
+- name: Ensure MySQL service is started
+  service:
+    name: mysql
+    state: started
+    enabled: yes
