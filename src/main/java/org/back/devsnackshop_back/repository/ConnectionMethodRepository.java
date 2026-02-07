@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
 @Repository
-public interface PrivilegeEntityRepository extends JpaRepository<PrivilegeEntity, Long> {}
+public interface ConnectionMethodRepository extends JpaRepository<ConnectionMethodEntity, Long> {}

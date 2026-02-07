@@ -7,6 +7,6 @@ import org.springframework.stereotype.*;
 import java.util.List;
 
 @Repository
-public interface CloudFirewallRuleEntityRepository extends JpaRepository<CloudFirewallRuleEntity, Long> {
-    List<CloudFirewallRuleEntity> findByUserOsInstanceId(Long instanceId);
+public interface DataBackupLogRepository extends JpaRepository<DataBackupLogEntity, Long> {
+    List<DataBackupLogEntity> findByBackupSettingIdOrderByCreatedAtDesc(UserBackupSettingEntity settingId);
 }

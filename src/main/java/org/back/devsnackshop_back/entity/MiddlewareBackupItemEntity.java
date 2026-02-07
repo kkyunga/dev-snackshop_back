@@ -10,8 +10,9 @@ public class MiddlewareBackupItemEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "middleware_id")
-    private Long middlewareId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "middleware_id")
+    private MiddlewareEntity middlewareId;
 
     @Column(name = "item_name_en")
     private String itemNameEn;

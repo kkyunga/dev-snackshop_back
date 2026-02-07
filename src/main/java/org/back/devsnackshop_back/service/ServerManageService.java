@@ -9,6 +9,7 @@ import org.back.devsnackshop_back.entity.SoftWareEntity;
 import org.back.devsnackshop_back.mapper.ServerManageMapper;
 import org.back.devsnackshop_back.repository.ServerRepository;
 import org.back.devsnackshop_back.repository.SoftWareRepository;
+import org.back.devsnackshop_back.repository.UserOsInstanceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,9 +23,10 @@ public class ServerManageService {
     private final SoftWareRepository softWareRepository;
     private final ServerManageMapper serverManageMapper;
 
+    private final UserOsInstanceRepository userOsInstanceRepository;
+
     public void createServer(ServerCreateRequest request)
     {
-
 
     }
 }

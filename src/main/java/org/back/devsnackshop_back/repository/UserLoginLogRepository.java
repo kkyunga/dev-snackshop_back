@@ -4,9 +4,9 @@ import org.back.devsnackshop_back.entity.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
-public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
-    Optional<UserEntity> findByEmail(String email);
+public interface UserLoginLogRepository extends JpaRepository<UserLoginLogEntity, Long> {
+    List<UserLoginLogEntity> findByUserIdOrderByCreatedAtDesc(UserEntity userId);
 }

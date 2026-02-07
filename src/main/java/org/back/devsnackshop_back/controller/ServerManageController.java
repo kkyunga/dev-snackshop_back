@@ -2,14 +2,11 @@ package org.back.devsnackshop_back.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 import org.back.devsnackshop_back.common.ApiResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
 import org.back.devsnackshop_back.service.ServerManageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 
 @Slf4j
@@ -30,6 +27,4 @@ public class ServerManageController {
         serverManageService.createServer(request);
         return ResponseEntity.ok(ApiResponse.success(request));
     }
-
-
 }

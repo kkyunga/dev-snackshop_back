@@ -2,6 +2,7 @@ package org.back.devsnackshop_back.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
 
 import java.time.LocalDateTime;
 
@@ -12,11 +13,13 @@ public class UserBackupSettingEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity userId;
 
-    @Column(name = "backup_item_id")
-    private Long backupItemId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "backup_item_id")
+    private UserBackupSettingEntity backupItemId;
 
     @Column(name = "backup_interval")
     private Integer backupInterval;

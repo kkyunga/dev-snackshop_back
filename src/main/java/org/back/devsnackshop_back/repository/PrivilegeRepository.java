@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
 @Repository
-public interface CloudEntityRepository extends JpaRepository<CloudEntity, Long> {}
+public interface PrivilegeRepository extends JpaRepository<PrivilegeEntity, Long> {}

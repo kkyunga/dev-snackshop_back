@@ -7,6 +7,6 @@ import org.springframework.stereotype.*;
 import java.util.List;
 
 @Repository
-public interface MiddlewareActivityLogEntityRepository extends JpaRepository<MiddlewareActivityLogEntity, Long> {
-    List<MiddlewareActivityLogEntity> findByInstalledMiddlewareIdOrderByCreatedAtDesc(Long installedId);
+public interface MiddlewareBackupItemRepository extends JpaRepository<MiddlewareBackupItemEntity, Long> {
+    List<MiddlewareBackupItemEntity> findByMiddlewareId(MiddlewareEntity middlewareId);
 }

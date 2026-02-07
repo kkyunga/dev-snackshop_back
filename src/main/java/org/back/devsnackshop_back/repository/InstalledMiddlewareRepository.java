@@ -7,6 +7,6 @@ import org.springframework.stereotype.*;
 import java.util.List;
 
 @Repository
-public interface MiddlewareBackupItemEntityRepository extends JpaRepository<MiddlewareBackupItemEntity, Long> {
-    List<MiddlewareBackupItemEntity> findByMiddlewareId(Long middlewareId);
+public interface InstalledMiddlewareRepository extends JpaRepository<InstalledMiddlewareEntity, Long> {
+    List<InstalledMiddlewareEntity> findByUserId(UserEntity userId);
 }

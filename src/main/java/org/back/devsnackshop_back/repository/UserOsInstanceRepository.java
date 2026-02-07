@@ -7,6 +7,6 @@ import org.springframework.stereotype.*;
 import java.util.List;
 
 @Repository
-public interface UserLoginLogEntityRepository extends JpaRepository<UserLoginLogEntity, Long> {
-    List<UserLoginLogEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
+public interface UserOsInstanceRepository extends JpaRepository<UserOsInstanceEntity, Long> {
+    List<UserOsInstanceEntity> findByUserId(UserEntity userId);
 }

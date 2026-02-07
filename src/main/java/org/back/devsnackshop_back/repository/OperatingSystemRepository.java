@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
 @Repository
-public interface OperatingSystemEntityRepository extends JpaRepository<OperatingSystemEntity, Long> {}
+public interface OperatingSystemRepository extends JpaRepository<OperatingSystemEntity, Long> {}

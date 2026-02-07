@@ -15,8 +15,9 @@ public class OsDistributionsEntity {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "os_id")
-    private long osId;
+    @ManyToOne
+    @JoinColumn(name = "os_id")
+    private OperatingSystemEntity osId;
 
     @Column(name = "distro_name")
     private String distroName;

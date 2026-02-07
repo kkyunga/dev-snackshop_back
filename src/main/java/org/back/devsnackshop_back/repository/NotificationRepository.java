@@ -7,6 +7,6 @@ import org.springframework.stereotype.*;
 import java.util.List;
 
 @Repository
-public interface OsAccessLogEntityRepository extends JpaRepository<OsAccessLogEntity, Long> {
-    List<OsAccessLogEntity> findByUserOsInstanceIdOrderByCreatedAtDesc(Long instanceId);
+public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
+    List<NotificationEntity> findAllByOrderByCreatedAtDesc();
 }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.*;
 import java.util.List;
 
 @Repository
-public interface UserBackupSettingEntityRepository extends JpaRepository<UserBackupSettingEntity, Long> {
-    List<UserBackupSettingEntity> findByUserId(Long userId);
+public interface OsAccessLogRepository extends JpaRepository<OsAccessLogEntity, Long> {
+    List<OsAccessLogEntity> findByUserOsInstanceIdOrderByCreatedAtDesc(UserOsInstanceEntity instanceId);
 }

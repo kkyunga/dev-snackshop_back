@@ -12,8 +12,9 @@ public class UserLoginLogEntity {
     @Column(name = "id") // 식별을 위해 ID 추가
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity userId;
 
     @Column(name = "is_login")
     private String isLogin;

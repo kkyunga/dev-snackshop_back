@@ -12,20 +12,25 @@ public class UserOsInstanceEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity userId;
 
-    @Column(name = "os_id")
-    private Long osId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "os_id")
+    private OsDistributionsEntity osId;
 
-    @Column(name = "cloud_id")
-    private Long cloudId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cloud_id")
+    private CloudEntity cloudId;
 
-    @Column(name = "connection_method_id")
-    private Long connectionMethodId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "connection_method_id")
+    private ConnectionMethodEntity connectionMethodId;
 
-    @Column(name = "privilege_id")
-    private Long privilegeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "privilege_id")
+    private PrivilegeEntity privilegeId;
 
     @Column(name = "alias")
     private String alias;

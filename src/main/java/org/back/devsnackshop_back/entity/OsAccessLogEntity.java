@@ -12,8 +12,10 @@ public class OsAccessLogEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_os_instance_id")
-    private Long userOsInstanceId;
+    @ManyToOne
+    @JoinColumn(name = "user_os_instance_id")
+    // 사용자의 운영체제 ID
+    private UserOsInstanceEntity userOsInstanceId;
 
     @Column(name = "is_success")
     private String isSuccess;
