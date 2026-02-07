@@ -1,0 +1,25 @@
+- name: Install Specific Tomcat Version
+  apt:
+    name: "tomcat{{ item.version }}"
+    state: present
+  when: item.version is defined and item.version != ""
+
+- name: Install Latest Tomcat
+  apt:
+    name: tomcat9 # 또는 OS 기본 톰캣 패키지명
+    state: latest
+  when: item.version is not defined or item.version == ""
+
+- name: Ensure Tomcat is started
+  service:
+    # 버전이 있을 땐 tomcat9, 없을 땐 기본 서비스명 사용
+    name: "{{ 'tomcat' + item.version if item.version else 'tomcat9' }}"
+    state: started
+    enabled: yes
+
+# 서비스 상태 확인
+- name: Ensure Tomcat service is started
+  service:
+    name: tomcat
+    state: started
+    enabled: yes

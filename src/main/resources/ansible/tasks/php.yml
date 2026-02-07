@@ -1,0 +1,23 @@
+- name: Add PHP PPA
+  apt_repository:
+    repo: 'ppa:ondrej/php'
+    state: present
+
+- name: Install Specific PHP Version
+  apt:
+    name: "php{{ item.version }}"
+    state: present
+  when: item.version is defined and item.version != ""
+
+- name: Install Latest PHP
+  apt:
+    name: php
+    state: latest
+  when: item.version is not defined or item.version == ""
+
+# 서비스 상태 확인
+- name: Ensure Php service is started
+  service:
+    name: php
+    state: started
+    enabled: yes

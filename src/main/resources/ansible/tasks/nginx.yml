@@ -1,0 +1,17 @@
+- name: Install Specific Nginx Version
+  apt:
+    name: "nginx={{ item.version }}*"
+    state: present
+  when: item.version is defined and item.version != ""
+
+- name: Install Latest Nginx
+  apt:
+    name: nginx
+    state: latest
+  when: item.version is not defined or item.version == ""
+
+- name: Ensure Nginx is started
+  service:
+    name: nginx
+    state: started
+    enabled: yes

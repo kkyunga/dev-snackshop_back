@@ -1,0 +1,21 @@
+- name: Setup Nodesource for Specific Version
+  shell: "curl -fsSL https://deb.nodesource.com/setup_{{ item.version }}.x | sudo -E bash -"
+  when: item.version is defined and item.version != ""
+
+- name: Install Node.js
+  apt:
+    name: nodejs
+    state: latest
+    update_cache: yes
+
+- name: Verify Node.js
+  command: node -v
+  register: node_v
+  changed_when: false
+
+# 서비스 상태 확인
+- name: Ensure Node service is started
+  service:
+    name: nodejs
+    state: started
+    enabled: yes

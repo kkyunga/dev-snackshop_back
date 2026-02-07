@@ -1,0 +1,10 @@
+---
+- name: Install Requested Middlewares with Versions
+  hosts: all
+  become: yes
+  tasks:
+    - name: "Looping through installation requests"
+      include_tasks: "tasks/{{ item.name }}.yml"
+      loop: "{{ install_items }}"
+      loop_control:
+        loop_var: item

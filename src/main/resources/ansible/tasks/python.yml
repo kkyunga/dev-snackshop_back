@@ -1,0 +1,18 @@
+- name: Install Specific Python Version
+  apt:
+    name: "python{{ item.version }}"
+    state: present
+  when: item.version is defined and item.version != ""
+
+- name: Install Latest Python 3
+  apt:
+    name: python3
+    state: latest
+  when: item.version is not defined or item.version == ""
+
+# 서비스 상태 확인
+- name: Ensure Python service is started
+  service:
+    name: python
+    state: started
+    enabled: yes
