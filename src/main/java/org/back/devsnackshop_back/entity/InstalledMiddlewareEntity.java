@@ -14,14 +14,9 @@ public class InstalledMiddlewareEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    // 사용자 정보 ID
-    private UserEntity userId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "os_id")
-    // 운영체제 상세 배포 ID
-    private OsDistributionsEntity osId;
+    @JoinColumn(name = "user_os_id")
+    // 사용자의 운영체제 ID
+    private UserOsInstanceEntity userOsId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "middleware_id")

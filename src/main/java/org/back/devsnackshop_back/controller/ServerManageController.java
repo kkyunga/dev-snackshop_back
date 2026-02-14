@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.common.ApiResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
 import org.back.devsnackshop_back.service.ServerManageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -26,4 +29,15 @@ public class ServerManageController {
         serverManageService.createServer(request);
         return ResponseEntity.ok(ApiResponse.success(request));
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> serverList(@RequestParam("userId") long userId) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("사용자 ID를 입력해주세요.");
+        }
+        List<ServerListResponse> result = serverManageService.serverList(userId);
+
+        return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
 }

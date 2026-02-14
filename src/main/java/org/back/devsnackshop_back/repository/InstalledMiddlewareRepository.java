@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface InstalledMiddlewareRepository extends JpaRepository<InstalledMiddlewareEntity, Long> {
-    List<InstalledMiddlewareEntity> findByUserId(UserEntity userId);
+    List<InstalledMiddlewareEntity> findByUserOsId(UserOsInstanceEntity userOsId);
 }
