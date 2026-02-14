@@ -37,6 +37,12 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()         // WebSocket 허용
                         .anyRequest().authenticated()
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout") // 로그아웃을 처리할 URL
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(200); // 성공 시 200 상태코드만 반환
+                        })
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

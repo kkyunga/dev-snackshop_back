@@ -55,9 +55,8 @@ public class AuthService {
 
             String accessToken = jwtUtil.generateToken(authentication.getName());
             String refreshToken = jwtUtil.generateRefreshToken(authentication.getName());
-            user.setRefreshToken(refreshToken);
-
-            userRepository.save(user);
+//            user.setRefreshToken(refreshToken);
+//            userRepository.save(user);
 
 
             return LoginResponse.builder()
@@ -83,12 +82,12 @@ public class AuthService {
         String email = jwtUtil.getEmailFromToken(refreshToken);
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자를 찾을 수 없습니다."));
-
-        // 2. 중복 로그인 체크 (작성하신 코드와 동일)
-        if (user.getRefreshToken() == null || !user.getRefreshToken().equals(refreshToken)) {
-            log.warn("중복 로그인 감지: {} 유저의 이전 세션 토큰 무효화", email);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "다른 기기에서 로그인되어 접속이 종료되었습니다.");
-        }
+//
+//        // 2. 중복 로그인 체크 (작성하신 코드와 동일)
+//        if (user.getRefreshToken() == null || !user.getRefreshToken().equals(refreshToken)) {
+//            log.warn("중복 로그인 감지: {} 유저의 이전 세션 토큰 무효화", email);
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "다른 기기에서 로그인되어 접속이 종료되었습니다.");
+//        }
 
         // 3. [Access Token 새로 만들기] -> 변수에 딱 한 번만 담기
         String newAccessToken = jwtUtil.generateToken(email);
@@ -101,8 +100,8 @@ public class AuthService {
             log.info("Refresh Token 만료 임박 - 새 토큰 발급 및 DB 갱신");
             String newRefreshToken = jwtUtil.generateRefreshToken(email);
 
-            user.setRefreshToken(newRefreshToken);
-            userRepository.save(user);
+//            user.setRefreshToken(newRefreshToken);
+//            userRepository.save(user);
 
             ResponseCookie newCookie = ResponseCookie.from("refreshToken", newRefreshToken)
                     .httpOnly(true)
