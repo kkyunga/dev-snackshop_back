@@ -3,11 +3,14 @@ package org.back.devsnackshop_back.service;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.middlewareManage.InstallRequest;
+import org.back.devsnackshop_back.dto.middlewareManage.response.MiddlewareListResponse;
+import org.back.devsnackshop_back.entity.InstalledMiddlewareEntity;
 import org.back.devsnackshop_back.entity.UserOsInstanceEntity;
-import org.back.devsnackshop_back.repository.MiddlewareRepository;
+import org.back.devsnackshop_back.repository.InstalledMiddlewareRepository;
 import org.back.devsnackshop_back.repository.UserOsInstanceRepository;
 import org.back.devsnackshop_back.task.MiddlewareTask;
 import org.back.devsnackshop_back.task.MiddlewareTaskFactory;
@@ -15,6 +18,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class MiddlewareService {
     private final UserOsInstanceRepository userOsInstanceRepository;
+    private final InstalledMiddlewareRepository installedMiddlewareRepository;
+
     private final MiddlewareTaskFactory middlewareTaskFactory;
 
     private final Map<String, String> statusStore = new ConcurrentHashMap<>();
@@ -70,6 +77,28 @@ public class MiddlewareService {
     // 상태 확인용 메소드
     public String getStatus(String taskId) {
         return statusStore.getOrDefault(taskId, "NOT_FOUND");
+    }
+
+    public List<MiddlewareListResponse> middlewareList(long userOsId) {
+        List<MiddlewareListResponse> result = new ArrayList<>();
+
+        UserOsInstanceEntity userOs = userOsInstanceRepository.findById(userOsId)
+                .orElseThrow(() -> new EntityNotFoundException("UserOs not found with ID: " + userOsId));
+
+        List<InstalledMiddlewareEntity> mdList = installedMiddlewareRepository.findByUserOsId(userOs);
+
+        for (InstalledMiddlewareEntity md : mdList) {
+            MiddlewareListResponse res = MiddlewareListResponse.builder()
+                    .name(md.getMiddlewareId().getMiddlewareName())
+                    .type(md.getMiddlewareId().getMiddlewareType())
+                    .version(md.getMiddlewareId().getVersion())
+                    .path(md.getInstallPath())
+                    .build();
+
+            result.add(res);
+        }
+
+        return result;
     }
 
     private String getSudoPrefix(InstallRequest dto) {
