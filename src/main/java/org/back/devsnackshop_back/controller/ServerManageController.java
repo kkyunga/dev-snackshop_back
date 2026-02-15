@@ -7,6 +7,8 @@ import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
 import org.back.devsnackshop_back.service.ServerManageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,11 +33,11 @@ public class ServerManageController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> serverList(@RequestParam("userId") long userId) {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("사용자 ID를 입력해주세요.");
+    public ResponseEntity<?> serverList(Authentication authentication) {
+        if (authentication == null) {
+            throw new AuthenticationCredentialsNotFoundException("Authentication is missing");
         }
-        List<ServerListResponse> result = serverManageService.serverList(userId);
+        List<ServerListResponse> result = serverManageService.serverList(authentication);
 
         return ResponseEntity.ok(ApiResponse.success(result));
     }
