@@ -52,6 +52,11 @@ dependencies {
     // DataFaker(더미데이터 생성)
     implementation 'net.datafaker:datafaker:2.2.2'
 
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
     // Test & Dev
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

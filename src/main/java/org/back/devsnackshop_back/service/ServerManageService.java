@@ -43,7 +43,7 @@ public class ServerManageService {
         return userOsEntities.stream()
                 .map(entity -> {
                     // 각 인스턴스에 설치된 미들웨어 목록 조회 및 DTO 변환
-                    List<ServerListResponse.MiddlewareData> mdResList = installedMiddlewareRepository.findByUserOsId(entity)
+                    List<ServerListResponse.MiddlewareData> mdResList = installedMiddlewareRepository.findAllByUserOsId(entity.getId())
                             .stream()
                             .map(this::mapToMiddlewareData) // 변환 로직 분리
                             .collect(Collectors.toList());

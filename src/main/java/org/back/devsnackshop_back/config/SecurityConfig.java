@@ -33,8 +33,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ws-connect", "/ws-connect/", "/ws-connect/**").permitAll() // 웹소켓 경로 허용
                         .requestMatchers("/auth/**","/api/auth/**").permitAll()  // 로그인/회원가입 허용
                         .requestMatchers("/ws/**").permitAll()         // WebSocket 허용
+                        .requestMatchers("/api/**", "/**").permitAll()         // 모든 API 허용(추후 제거해야됨)
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout

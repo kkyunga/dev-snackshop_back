@@ -42,11 +42,16 @@ public class MiddlewareController {
 
     @GetMapping("/list")
     public ResponseEntity<?> middlewareList(@RequestParam("userOsId") long userOsId) {
-        if (userOsId <= 0) {
-            throw new IllegalArgumentException("사용자 OS ID를 입력해주세요.");
+        try {
+            if (userOsId <= 0) {
+                throw new IllegalArgumentException("사용자 OS ID를 입력해주세요.");
+            }
+            List<MiddlewareListResponse> result = middlewareService.middlewareList(userOsId);
+            return ResponseEntity.ok(ApiResponse.success(result));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        List<MiddlewareListResponse> result = middlewareService.middlewareList(userOsId);
-        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
 }

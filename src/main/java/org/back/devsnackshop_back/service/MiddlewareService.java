@@ -82,10 +82,7 @@ public class MiddlewareService {
     public List<MiddlewareListResponse> middlewareList(long userOsId) {
         List<MiddlewareListResponse> result = new ArrayList<>();
 
-        UserOsInstanceEntity userOs = userOsInstanceRepository.findById(userOsId)
-                .orElseThrow(() -> new EntityNotFoundException("UserOs not found with ID: " + userOsId));
-
-        List<InstalledMiddlewareEntity> mdList = installedMiddlewareRepository.findByUserOsId(userOs);
+        List<InstalledMiddlewareEntity> mdList = installedMiddlewareRepository.findAllByUserOsId(userOsId);
 
         for (InstalledMiddlewareEntity md : mdList) {
             MiddlewareListResponse res = MiddlewareListResponse.builder()
