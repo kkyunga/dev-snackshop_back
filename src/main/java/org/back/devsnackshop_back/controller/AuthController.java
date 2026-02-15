@@ -4,8 +4,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.back.devsnackshop_back.common.ApiResponse;
+import org.back.devsnackshop_back.dto.findEmail.FindEmailRequest;
 import org.back.devsnackshop_back.dto.login.LoginRequest;
 import org.back.devsnackshop_back.dto.login.LoginResponse;
+import org.back.devsnackshop_back.entity.UserEntity;
 import org.back.devsnackshop_back.service.AuthService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -61,4 +64,17 @@ public class AuthController {
                 "accessToken", newAccessToken
         ));
     }
+
+
+    @PostMapping("/findEmail")
+    public ResponseEntity<?> findEmail(@RequestBody FindEmailRequest findEmailRequest) {
+        UserEntity userEntity = authService.findEmail(findEmailRequest);
+        return ResponseEntity.ok(ApiResponse.success(userEntity));
+    }
+
+
+
+
+
+
 }

@@ -3,6 +3,7 @@ package org.back.devsnackshop_back.service;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.back.devsnackshop_back.dto.findEmail.FindEmailRequest;
 import org.back.devsnackshop_back.dto.login.LoginRequest;
 import org.back.devsnackshop_back.dto.login.LoginResponse;
 import org.back.devsnackshop_back.entity.UserEntity;
@@ -21,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -115,5 +118,15 @@ public class AuthService {
 
         // 5. 최종적으로 위에서 만든 newAccessToken을 반환!
         return newAccessToken;
+    }
+
+    public UserEntity findEmail(FindEmailRequest findEmailRequest) {
+        String name = findEmailRequest.getName();
+        String phone = findEmailRequest.getPhone();
+        return userRepository.findByNameAndPhone(name, phone)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자를 찾을 수 없습니다."));
+
+
+
     }
 }

@@ -56,6 +56,8 @@ public class ApiResponse<T> {
 
 
 
-
+    public static <T> ApiResponse<T> error(int resultCode, String message) {
+        return new ApiResponse<>(resultCode, message, null);
+    }
 
 }
