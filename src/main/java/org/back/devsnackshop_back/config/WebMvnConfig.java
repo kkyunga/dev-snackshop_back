@@ -18,7 +18,7 @@ public class WebMvnConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/auth/login"
                         , "/auth/tokenFactory"
-                        , "/api/auth/findEmail"
+                        , "/auth/findEmail"
                 );
     }
 }
