@@ -16,9 +16,15 @@ public class WebMvnConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/auth/login"
+                          "/auth/login"
                         , "/auth/tokenFactory"
                         , "/auth/findEmail"
+                        , "/auth/reset-password-link"
+                        , "/auth/reset-password-link"
+                        , "/auth/findPassword"
+                        , "/auth/signup"
+                        , "/auth/updatePassword"
+                        , "/auth/confirmEmail"
                 );
     }
 }

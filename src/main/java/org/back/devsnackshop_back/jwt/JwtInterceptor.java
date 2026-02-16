@@ -25,7 +25,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         // 2. 응답 타입 설정 (JSON)
         response.setContentType("application/json;charset=UTF-8");
         // 3. 직접 메시지 작성
-        response.getWriter().write("{\"message\": \"토큰이 없거나 유효하지 않습니다.\"}");
+        response.getWriter().write("{\"message\": \"토큰이 없거나 유효하지 않습니다!!!!!!.\"}");
         return false;
     }
 }

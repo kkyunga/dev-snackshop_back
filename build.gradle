@@ -81,7 +81,7 @@ dependencies {
 
 
 
-
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 // QueryDSL QClass 생성 경로 설정
