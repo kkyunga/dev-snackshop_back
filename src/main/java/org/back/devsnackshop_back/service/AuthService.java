@@ -173,7 +173,8 @@ public class AuthService {
             log.info(userRequest.toString());
             String name = userRequest.getName();
             String phone = userRequest.getPhone();
-            UserEntity userEntity =   userRepository.findByNameAndPhone(name,phone)
+            String email = userRequest.getEmail();
+            UserEntity userEntity =   userRepository.findByNameAndPhoneAndEmail(name,phone,email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자를 찾을 수 없습니다."));
             UserResponse response =   userMapper.toResponse(userEntity);
             log.info(response.toString());
@@ -222,6 +223,12 @@ public class AuthService {
         userRepository.findByEmail(userRequest.getEmail()).ifPresent(u -> {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다.");
         });
+
+        userRepository.findByPhoneNumber(userRequest.getPhone()).ifPresent(u -> {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다.");
+        });
+
+
         try{
              String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
              userRequest.setPassword(encryptedPassword);
