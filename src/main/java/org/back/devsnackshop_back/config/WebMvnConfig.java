@@ -20,7 +20,6 @@ public class WebMvnConfig implements WebMvcConfigurer {
                         , "/auth/tokenFactory"
                         , "/auth/findEmail"
                         , "/auth/reset-password-link"
-                        , "/auth/reset-password-link"
                         , "/auth/findPassword"
                         , "/auth/signup"
                         , "/auth/updatePassword"
