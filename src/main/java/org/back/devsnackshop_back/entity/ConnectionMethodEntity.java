@@ -11,7 +11,7 @@ public class ConnectionMethodEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "method_name")
     // 접속 방식(SSH, RDP, HTTP 등)
+    @Column(name = "method_name")
     private String methodName;
 }

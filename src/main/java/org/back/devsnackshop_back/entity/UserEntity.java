@@ -7,23 +7,27 @@ import java.time.LocalDateTime;
 
 @Data @AllArgsConstructor @NoArgsConstructor @Builder @Entity
 @Table(name = "users")
+// 사용자 정보
 public class UserEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+    // 이름
     @Column(name = "name")
     private String name;
 
+    // 이메일
     @Column(name = "email")
     private String email;
 
+    // 전화번호
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    // 암호화된 비밀번호
     @Column(name = "password_encrypted")
     private String passwordEncrypted;
-
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

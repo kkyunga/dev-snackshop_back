@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// 서버 용도 목록
 public class ServerPurposeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,6 +14,7 @@ public class UserOsInstanceEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    // 사용자 ID
     private UserEntity userId;
 
     //서버 별명
@@ -34,17 +35,19 @@ public class UserOsInstanceEntity {
     @JoinColumn(name = "os_id")
     private OsDistributionsEntity osId;
 
-
+    // IP 주소
     @Column(name = "ip_address")
     private String ipAddress;
 
+    // port 번호
     @Column(name = "port_number")
     private Long portNumber;
 
-
+    // 국가
     @Column(name = "country")
     private String country;
 
+    // 접속 정보의 사용자명
     @Column(name = "username")
     private String username;
 
@@ -58,12 +61,13 @@ public class UserOsInstanceEntity {
 //    @JoinColumn(name = "privilege_id")
 //    private PrivilegeEntity privilegeId;
 //
+     // 접속 정보의 비밀번호
     @Column(name = "password")
     private String password;
 
+    // 접속 정보의 인증키 파일명
     @Column(name = "auth_key_filename")
     private String authKeyFilename;
-
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

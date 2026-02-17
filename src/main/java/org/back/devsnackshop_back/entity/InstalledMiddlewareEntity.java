@@ -13,22 +13,22 @@ public class InstalledMiddlewareEntity {
     @Column(name = "id")
     private Long id;
 
+    // 사용자의 운영체제 ID
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_os_id")
-    // 사용자의 운영체제 ID
     private UserOsInstanceEntity userOsId;
 
+    // 미들웨어 ID
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "middleware_id")
-    // 미들웨어 ID
     private MiddlewareEntity middlewareId;
 
-    @Column(name = "install_path")
     // 설치 경로
+    @Column(name = "install_path")
     private String installPath;
 
-    @Column(name = "port_number")
     // 포트 번호
+    @Column(name = "port_number")
     private Long portNumber;
 
     @Column(name = "created_at")

@@ -13,11 +13,12 @@ public class MiddlewareActivityLogEntity {
     @Column(name = "id")
     private Long id;
 
+    // 사용자별 설치된 미들웨어 ID
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "installed_middleware_id")
-    //
     private InstalledMiddlewareEntity installedMiddlewareId;
 
+    // 활동상태(설치성공, 설치실패, 접속성공, 접속실패, 삭제, 업데이트 등)
     @Column(name = "status")
     private String status;
 

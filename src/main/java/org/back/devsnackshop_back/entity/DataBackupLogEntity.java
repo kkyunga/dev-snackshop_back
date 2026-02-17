@@ -13,29 +13,29 @@ public class DataBackupLogEntity {
     @Column(name = "id")
     private Long id;
 
+    // 데이터 백업 설정 ID
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "backup_setting_id")
-    // 데이터 백업 설정 ID
     private UserBackupSettingEntity backupSettingId;
 
-    @Column(name = "content")
     // 백업 상세 내용
+    @Column(name = "content")
     private String content;
 
-    @Column(name = "file_name")
     // 생성된 백업 파일명
+    @Column(name = "file_name")
     private String fileName;
 
-    @Column(name = "file_size")
     // 파일 크기
+    @Column(name = "file_size")
     private Integer fileSize;
 
-    @Column(name = "file_path")
     // 파일 저장경로
+    @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "is_success")
     // 성공여부(Y/N)
+    @Column(name = "is_success")
     private String isSuccess;
 
     @Column(name = "created_at")

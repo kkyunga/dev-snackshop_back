@@ -13,25 +13,25 @@ public class CloudFirewallRuleEntity {
     @Column(name = "id")
     private Long id;
 
+    // 사용자별 운영체제(서버) 목록 ID
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_os_instance_id")
-    // 사용자별 운영체제(서버) 목록 ID
     private UserOsInstanceEntity userOsInstanceId;
 
-    @Column(name = "service_name")
     // 서비스명(SSH, HTTP, HTTPS 등)
+    @Column(name = "service_name")
     private String serviceName;
 
-    @Column(name = "port_number")
     // 포트번호
+    @Column(name = "port_number")
     private Long portNumber;
 
-    @Column(name = "protocol")
     // 프로토콜
+    @Column(name = "protocol")
     private String protocol;
 
-    @Column(name = "status")
     // 방화벽 상태
+    @Column(name = "status")
     private String status;
 
     @Column(name = "created_at")
