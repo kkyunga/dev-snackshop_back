@@ -2,7 +2,7 @@ package org.back.devsnackshop_back.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+//권한
 @Data @AllArgsConstructor @NoArgsConstructor @Builder @Entity
 @Table(name = "privileges")
 public class PrivilegeEntity {

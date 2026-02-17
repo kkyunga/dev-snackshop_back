@@ -4,7 +4,11 @@ import org.back.devsnackshop_back.entity.OsDistributionsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OsDistributionsRepository extends JpaRepository<OsDistributionsEntity, Long> {
 
+
+    Optional<Object> findByDistroNameAndVersion(String osType, String osVersion);
 }

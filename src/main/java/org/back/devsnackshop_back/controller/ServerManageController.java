@@ -13,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -23,15 +25,7 @@ public class ServerManageController {
 
     private final ServerManageService serverManageService;
 
-    // POST /api/servers 호출 시 실행됨
-    @PostMapping("")
-    public ResponseEntity<?> createServer(@RequestBody ServerCreateRequest request) {
-        if(request.getIp() == null){
-            throw new IllegalArgumentException("IP 주소는 필수입니다");
-        }
-        serverManageService.createServer(request);
-        return ResponseEntity.ok(ApiResponse.success(request));
-    }
+
 
     @GetMapping("/list")
     public ResponseEntity<?> serverList(Authentication authentication) {
@@ -73,9 +67,22 @@ public class ServerManageController {
         }
 
         log.info(serverCreateRequest.toString());
- //        serverManageService.createServer(request, keyFile, authentication);
+        serverManageService.createServer(serverCreateRequest, keyFile, authentication);
         return ResponseEntity.ok(ApiResponse.success("서버가 추가되었습니다."));
     }
+
+
+
+    @GetMapping(value = "/serverSpecItems")
+    public ResponseEntity<?> serverSpecItem() {
+//
+//        List<HashMap<String, Objects>> specs =serverManageService.getServerSpecItems();
+//        log.info(specs.toString());
+//
+//        return ResponseEntity.ok(ApiResponse.success(specs));
+        return null;
+    }
+
 
 
 

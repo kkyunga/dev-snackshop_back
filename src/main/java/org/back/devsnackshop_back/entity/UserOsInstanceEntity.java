@@ -16,24 +16,24 @@ public class UserOsInstanceEntity {
     @JoinColumn(name = "user_id")
     private UserEntity userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "os_id")
-    private OsDistributionsEntity osId;
+    //서버 별명
+    @Column(name = "alias")
+    private String alias;
 
+    //클라우드 서비스
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cloud_id")
     private CloudEntity cloudId;
 
+    //서버 종류
+    @Column(name="server_type")
+    private String serverOsType;
+    
+    //OS 버전
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "connection_method_id")
-    private ConnectionMethodEntity connectionMethodId;
+    @JoinColumn(name = "os_id")
+    private OsDistributionsEntity osId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "privilege_id")
-    private PrivilegeEntity privilegeId;
-
-    @Column(name = "alias")
-    private String alias;
 
     @Column(name = "ip_address")
     private String ipAddress;
@@ -41,20 +41,29 @@ public class UserOsInstanceEntity {
     @Column(name = "port_number")
     private Long portNumber;
 
+
     @Column(name = "country")
     private String country;
 
     @Column(name = "username")
     private String username;
 
+
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "connection_method_id")
+//    private ConnectionMethodEntity connectionMethodId;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "privilege_id")
+//    private PrivilegeEntity privilegeId;
+//
     @Column(name = "password")
     private String password;
 
     @Column(name = "auth_key_filename")
     private String authKeyFilename;
 
-    @Column(name = "cpu_model_name")
-    private String cpuModelName;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

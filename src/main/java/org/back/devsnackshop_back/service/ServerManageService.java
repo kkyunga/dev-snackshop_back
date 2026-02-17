@@ -5,8 +5,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.response.OsDistributionsResponse;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
 import org.back.devsnackshop_back.entity.*;
+import org.back.devsnackshop_back.mapper.OsDistributionsMapper;
+import org.back.devsnackshop_back.mapper.UserMapper;
+import org.back.devsnackshop_back.mapper.UserOsInstanceMapper;
 import org.back.devsnackshop_back.repository.*;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -17,7 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,8 +37,20 @@ public class ServerManageService {
     private final UserRepository userRepository;
     private final InstalledMiddlewareRepository installedMiddlewareRepository;
     private final UserOsInstanceRepository userOsInstanceRepository;
+    private final UserMapper userMapper;
+    private final UserOsInstanceMapper  userOsInstanceMapper;
+    private final OsDistributionsRepository osDistributionsRepository;
+    private final ServerPurposeRepository serverPurposeRepository;
 
-    public void createServer(ServerCreateRequest request) {
+
+    private final OsDistributionsMapper osDistributionsMapper;
+    public void createServer(ServerCreateRequest serverCreateRequest,MultipartFile keyFile, Authentication authentication) {
+
+
+        UserOsInstanceEntity ss = userOsInstanceMapper.toEntity(serverCreateRequest);
+        log.info(ss.toString());
+
+
 
     }
 
@@ -107,5 +125,23 @@ public class ServerManageService {
                 }
             }
         }
+    }
+
+
+    public HashMap<String, Objects> getServerSpecItems() {
+        List<OsDistributionsEntity> osDiss = osDistributionsRepository.findAll();
+        List< ServerPurposeEntity>  purposes= serverPurposeRepository.findAll();
+
+
+
+        List<OsDistributionsResponse> responseList = osDiss.stream()
+                .map(osDistributionsMapper::toResponse) // 개별 엔티티를 하나씩 변환
+                .collect(Collectors.toList());
+
+        return null;
+
+
+
+
     }
 }
