@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface UserOsInstanceRepository extends JpaRepository<UserOsInstanceEntity, Long> {
-    List<UserOsInstanceEntity> findByUserId(UserEntity userId);
+    List<UserOsInstanceEntity> findByUser(UserEntity userEntity);
+
+    UserOsInstanceEntity findByIpAddress(String ip);
 }

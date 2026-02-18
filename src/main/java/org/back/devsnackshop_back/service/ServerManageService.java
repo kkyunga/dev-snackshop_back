@@ -5,15 +5,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.response.CloudItemResponse;
 import org.back.devsnackshop_back.dto.serververManage.response.OsDistributionsResponse;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
+import org.back.devsnackshop_back.dto.serververManage.response.ServerPurposeResponse;
 import org.back.devsnackshop_back.entity.*;
-import org.back.devsnackshop_back.mapper.OsDistributionsMapper;
-import org.back.devsnackshop_back.mapper.UserMapper;
-import org.back.devsnackshop_back.mapper.UserOsInstanceMapper;
+import org.back.devsnackshop_back.mapper.*;
 import org.back.devsnackshop_back.repository.*;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,25 +32,56 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class ServerManageService {
-    private final ServerRepository serverRepository;
-    private final SoftWareRepository softWareRepository;
-
     private final UserRepository userRepository;
     private final InstalledMiddlewareRepository installedMiddlewareRepository;
     private final UserOsInstanceRepository userOsInstanceRepository;
-    private final UserMapper userMapper;
+
     private final UserOsInstanceMapper  userOsInstanceMapper;
     private final OsDistributionsRepository osDistributionsRepository;
     private final ServerPurposeRepository serverPurposeRepository;
+    private final CloudRepository cloudRepository;
+    private final AttachmentRepository attachmentRepository;
 
 
     private final OsDistributionsMapper osDistributionsMapper;
+    private final ServerPurposeMapper serverPurposeMapper;
+    private final CloudItemsMapper cloudItemsMapper;
+    private final FileService fileService;
+
     public void createServer(ServerCreateRequest serverCreateRequest,MultipartFile keyFile, Authentication authentication) {
 
 
-        UserOsInstanceEntity ss = userOsInstanceMapper.toEntity(serverCreateRequest);
-        log.info(ss.toString());
+        UserOsInstanceEntity instanceEntity = userOsInstanceRepository.findByIpAddress(serverCreateRequest.getIp());
+        if(instanceEntity.getId() !=0){
+            throw new DataIntegrityViolationException("이미 등록된 IP 주소(" + serverCreateRequest.getIp() + ")입니다.");
+        }
 
+
+
+        UserOsInstanceEntity serverEntity = userOsInstanceMapper.toEntity(serverCreateRequest);
+        // 2. [수정] 실제 DB에 저장된 유저 정보를 가져옵니다. (ID가 포함된 유저)
+        String email = authentication.getName();
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+
+        serverEntity.setUser(userEntity);
+
+        // 3. 파일 처리 로직
+        if (keyFile != null && !keyFile.isEmpty()) {
+            // FileService에서 물리 파일 저장 후 엔티티 "생성" (아직 저장은 안 됨)
+            AttachmentEntity fileInfo = fileService.saveFile(keyFile, "keys");
+
+            if (fileInfo != null) {
+                // attachment 테이블에 실제 저장하여 ID(PK) 생성
+                AttachmentEntity savedFile = attachmentRepository.save(fileInfo);
+
+                // 생성된 파일의 ID를 서버 엔티티에 셋팅
+                serverEntity.setAttachmentId(savedFile.getId());
+            }
+        }
+        log.info(serverEntity.toString());
+        userOsInstanceRepository.save(serverEntity);
 
 
     }
@@ -60,7 +92,7 @@ public class ServerManageService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with Email: " + authentication.getName()));
 
         // 2. 해당 사용자의 OS 인스턴스 목록 조회
-        List<UserOsInstanceEntity> userOsEntities = userOsInstanceRepository.findByUserId(user);
+        List<UserOsInstanceEntity> userOsEntities = userOsInstanceRepository.findByUser(user);
 
         // 3. Stream API를 이용한 변환 로직
         return userOsEntities.stream()
@@ -128,17 +160,35 @@ public class ServerManageService {
     }
 
 
-    public HashMap<String, Objects> getServerSpecItems() {
+    public HashMap<String, Object> getServerSpecItems() {
         List<OsDistributionsEntity> osDiss = osDistributionsRepository.findAll();
         List< ServerPurposeEntity>  purposes= serverPurposeRepository.findAll();
+        List<CloudEntity> cloudList = cloudRepository.findAll();
 
 
-
-        List<OsDistributionsResponse> responseList = osDiss.stream()
-                .map(osDistributionsMapper::toResponse) // 개별 엔티티를 하나씩 변환
+        List<OsDistributionsResponse> osList = osDiss.stream()
+                .map(osDistributionsMapper::toResponse)
                 .collect(Collectors.toList());
 
-        return null;
+
+        List<ServerPurposeResponse> serverPurposeList = purposes.stream()
+                .map(serverPurposeMapper::toResponse)
+                .collect(Collectors.toList());
+
+
+
+        List<CloudItemResponse> cloudItemList = cloudList.stream()
+                .map(cloudItemsMapper::toResponse)
+                .collect(Collectors.toList());
+
+
+
+        HashMap<String, Object>  serverSpecItems = new HashMap<>();
+        serverSpecItems.put("osList",osList);
+        serverSpecItems.put("cloudItemList",cloudItemList);
+        serverSpecItems.put("serverPurposeList",serverPurposeList);
+
+        return serverSpecItems;
 
 
 

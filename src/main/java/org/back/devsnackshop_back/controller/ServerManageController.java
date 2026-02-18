@@ -75,13 +75,10 @@ public class ServerManageController {
 
     @GetMapping(value = "/serverSpecItems")
     public ResponseEntity<?> serverSpecItem() {
-//
-//        List<HashMap<String, Objects>> specs =serverManageService.getServerSpecItems();
-//        log.info(specs.toString());
-//
-//        return ResponseEntity.ok(ApiResponse.success(specs));
-        return null;
-    }
+        HashMap<String, Object> specs =serverManageService.getServerSpecItems();
+        log.info(specs.toString());
+        return ResponseEntity.ok(ApiResponse.success(specs));
+     }
 
 
 

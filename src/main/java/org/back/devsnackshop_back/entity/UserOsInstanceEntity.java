@@ -15,7 +15,7 @@ public class UserOsInstanceEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     // 사용자 ID
-    private UserEntity userId;
+    private UserEntity user;
 
     //서버 별명
     @Column(name = "alias")
@@ -65,13 +65,14 @@ public class UserOsInstanceEntity {
     @Column(name = "password")
     private String password;
 
-    // 접속 정보의 인증키 파일명
-    @Column(name = "auth_key_filename")
-    private String authKeyFilename;
+    @Column(name = "attachment_id")
+    private Long attachmentId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+
 }

@@ -164,7 +164,8 @@ public class MiddlewareService {
             UserOsInstanceEntity entity = userOsInstanceRepository.findById(dto.getUserOsInstanceId())
                     .orElseThrow(() -> new RuntimeException("서버 정보를 찾을 수 없습니다."));
 
-            String keyPath = "/home/ubuntu/keyFiles/" + entity.getAuthKeyFilename();
+//            String keyPath = "/home/ubuntu/keyFiles/" + entity.getAuthKeyFilename();
+            String  keyPath = null;
             if (keyPath != null && !keyPath.isEmpty()) {
                 jsch.addIdentity(keyPath);
                 log.info("서버에 저장된 인증키를 사용합니다: {}", keyPath);

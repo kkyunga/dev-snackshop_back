@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface OsDistributionsMapper {
-
-    @Mapping(target = "value", expression = "java(entity.getDistroName() + \" \" + entity.getVersion())")
+    @Mapping(source = "id", target = "value") // Entity의 id를 Response의 value로 매핑
+    @Mapping(target = "text", expression = "java(entity.getDistroName() + \" \" + entity.getVersion())")
     OsDistributionsResponse toResponse(OsDistributionsEntity entity);
 
 }
