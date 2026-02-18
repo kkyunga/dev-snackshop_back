@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -53,29 +54,32 @@ public class FileService {
         }
 
         try {
-            // 1. 파일명 생성 (원본명 + UUID)
+            // 1. 파일명 생성
             String originalFileName = file.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
             String savedFileName = uuid + "_" + originalFileName;
 
-            // 2. 저장 경로 설정 및 폴더 생성
-            String fullPath = uploadPath + File.separator + subFolder;
-            File folder = new File(fullPath);
+            // 2. [수정] Path API를 사용하여 경로 생성 (OS에 맞는 구분자 자동 처리)
+            Path rootPath = Paths.get(uploadPath, subFolder).normalize();
+            File folder = rootPath.toFile();
             if (!folder.exists()) {
                 folder.mkdirs();
             }
 
             // 3. 물리 파일 저장
-            Path targetPath = Paths.get(fullPath).resolve(savedFileName);
-            Files.write(targetPath, file.getBytes());
+            Path targetPath = rootPath.resolve(savedFileName);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING); // Files.write보다 대용량에 효율적
 
             log.info("파일 물리 저장 성공: {}", targetPath);
 
-            // 4. AttachmentEntity 객체 생성 (Builder 사용)
+            // 4. AttachmentEntity 객체 생성
+            // DB 저장 시에는 슬래시(/)로 통일하는 것이 나중에 리눅스 서버 등에서 관리하기 편합니다.
+            String dbFilePath = rootPath.toString().replace("\\", "/");
+
             return AttachmentEntity.builder()
                     .originFileName(originalFileName)
                     .storedFileName(savedFileName)
-                    .filePath(fullPath)
+                    .filePath(dbFilePath) // 정규화된 경로 저장
                     .fileSize(file.getSize())
                     .fileType(file.getContentType())
                     .createdAt(LocalDateTime.now())
