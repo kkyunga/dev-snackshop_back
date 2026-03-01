@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/middleware")
@@ -21,14 +20,11 @@ public class MiddlewareController {
     private final MiddlewareService middlewareService;
     private final InstallMiddlewareService installMiddleware;
 
-    @PostMapping(value = "/install", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> requestInstall(@ModelAttribute InstallRequest dto) {
-        String taskId = UUID.randomUUID().toString();
-
+    @PostMapping(value = "/install")
+    public ResponseEntity<?> requestInstall(@RequestBody InstallRequest dto) {
         installMiddleware.installMiddleware(dto);
 
         return ResponseEntity.accepted().body(Map.of(
-                "taskId", taskId,
                 "message", "설치 작업이 백그라운드에서 시작되었습니다."
         ));
     }
