@@ -6,12 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.common.ApiResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailInfoResponse;
-import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailResponse;
+import org.back.devsnackshop_back.dto.serververManage.ServerRemoveRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
 import org.back.devsnackshop_back.service.ServerManageService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -94,11 +92,10 @@ public class ServerManageController {
      }
 
 
-
-
-
-
-
-
-
+    @PostMapping("/delete")
+    public ResponseEntity<?> serverRemove(@RequestBody ServerRemoveRequest removeRequest,
+                                          Authentication authentication) {
+        serverManageService.serverRemove(removeRequest.getUserOsId(), authentication);
+        return ResponseEntity.ok("서버 삭제가 완료되었습니다.");
+    }
 }

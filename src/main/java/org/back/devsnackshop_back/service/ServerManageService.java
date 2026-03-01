@@ -5,7 +5,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
@@ -15,9 +14,12 @@ import org.back.devsnackshop_back.mapper.*;
 import org.back.devsnackshop_back.repository.*;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.mapstruct.ap.shaded.freemarker.template.utility.NullArgumentException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -27,13 +29,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ServerManageService {
     private final UserRepository userRepository;
     private final InstalledMiddlewareRepository installedMiddlewareRepository;
@@ -51,10 +52,11 @@ public class ServerManageService {
     private final CloudItemsMapper cloudItemsMapper;
     private final FileService fileService;
 
+    @Transactional
     public void createServer(ServerCreateRequest serverCreateRequest,MultipartFile keyFile, Authentication authentication) {
 
 
-        UserOsInstanceEntity instanceEntity = userOsInstanceRepository.findByIpAddress(serverCreateRequest.getIp());
+        Optional<UserOsInstanceEntity> instanceEntity = userOsInstanceRepository.findByIpAddress(serverCreateRequest.getIp());
         if(instanceEntity!= null){
             throw new DataIntegrityViolationException("이미 등록된 IP 주소(" + serverCreateRequest.getIp() + ")입니다.");
         }
@@ -89,6 +91,7 @@ public class ServerManageService {
 
     }
 
+    @Transactional(readOnly = true)
     public List<ServerListResponse> serverList(Authentication authentication) {
         // 1. 사용자 조회 (get() 대신 orElseThrow로 예외 상황 방어)
         UserEntity user = userRepository.findByEmail(authentication.getName())
@@ -162,7 +165,7 @@ public class ServerManageService {
         }
     }
 
-
+    @Transactional(readOnly = true)
     public HashMap<String, Object> getServerSpecItems() {
         List<OsDistributionsEntity> osDiss = osDistributionsRepository.findAll();
         List< ServerPurposeEntity>  purposes= serverPurposeRepository.findAll();
@@ -205,13 +208,29 @@ public class ServerManageService {
         if (entity.getAttachmentId() != null) {
             // PEM 파일 방식 (파일 서비스에서 실제 파일 바이트를 가져와야 함)
             byte[] pemPrivateKey = fileService.downloadFile(entity.getAttachmentId());
-            cpuModel = executeSshCommand(entity, pemPrivateKey , null);
-        }else
-        {
-            cpuModel = executeSshCommand(entity, null , entity.getPassword());
+            cpuModel = executeSshCommand(entity, pemPrivateKey, null);
+        } else {
+            cpuModel = executeSshCommand(entity, null, entity.getPassword());
         }
-        return userOsInstanceMapper.toDetailServerInfoResponse(entity,cpuModel);
+        return userOsInstanceMapper.toDetailServerInfoResponse(entity, cpuModel);
 
+    }
+
+    @Transactional
+    public void serverRemove(long userOsId,
+                             Authentication authentication) {
+        try {
+            UserEntity user = userRepository.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 가진 사용자를 찾을 수 없습니다: " + authentication.getName()));
+
+            UserOsInstanceEntity userOs = userOsInstanceRepository.findByUserAndId(user, userOsId)
+                    .orElseThrow(() -> new NullArgumentException("사용자의 서버 정보를 찾을 수 없습니다."));
+
+            installedMiddlewareRepository.deleteByUserOsId(userOs);
+            userOsInstanceRepository.deleteById(userOsId);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     private String executeSshCommand(UserOsInstanceEntity entity, byte[] pemKey, String password) throws JSchException, IOException {

@@ -13,5 +13,7 @@ public interface InstalledMiddlewareRepository extends JpaRepository<InstalledMi
             "JOIN FETCH im.middlewareId " + // 미들웨어 정보를 미리 조인해서 가져옴
             "WHERE im.userOsId.id = :userOsId")
     List<InstalledMiddlewareEntity> findAllByUserOsId(@Param("userOsId") Long userOsId);
+
+    void deleteByUserOsId(UserOsInstanceEntity userOsId);
 //    List<InstalledMiddlewareEntity> findByUserOsId(UserOsInstanceEntity userOsId);
 }

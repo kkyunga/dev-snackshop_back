@@ -2,25 +2,34 @@ package org.back.devsnackshop_back.task;
 
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class TomcatTask implements MiddlewareTask {
+
     @Override
-    public String getPackageInstallCommand(String version, String sudoPrefix) {
-        return String.format("%sapt-get update && %sapt-get install -y tomcat9", sudoPrefix, sudoPrefix);
+    public List<String> getPackageInstallCommand(String version, String sudoPrefix) {
+        return List.of(
+                sudoPrefix + "apt-get update",
+                sudoPrefix + "apt-get install -y tomcat9",
+                sudoPrefix + "systemctl enable --now tomcat9"
+        );
     }
 
     @Override
-    public String getBinaryInstallCommand(String path, String version, String sudoPrefix) {
+    public List<String> getBinaryInstallCommand(String path, String version, String sudoPrefix) {
         String major = (version == null || version.isBlank()) ? "9" : version.split("\\.")[0];
         String ver = (version == null || version.isBlank()) ? "9.0.85" : version;
-        String url = String.format("https://archive.apache.org/dist/tomcat/tomcat-%s/v%s/bin/apache-tomcat-%s.tar.gz",
-                major, ver, ver);
+        String fileName = "apache-tomcat-" + ver + ".tar.gz";
+        String url = "https://archive.apache.org/dist/tomcat/tomcat-" + major + "/v" + ver + "/bin/" + fileName;
 
-        return String.join(" && ",
+        return List.of(
+                sudoPrefix + "apt-get update",
+                sudoPrefix + "apt-get install -y wget tar",
                 sudoPrefix + "mkdir -p " + path,
-                "cd " + path,
-                "wget -nc " + url,
-                "tar -zxvf apache-tomcat-" + ver + ".tar.gz --strip-components=1",
+                sudoPrefix + "chown -R $(whoami):$(whoami) " + path,
+                "cd " + path + " && wget -nc " + url,
+                "cd " + path + " && tar -zxvf " + fileName + " --strip-components=1",
                 "chmod +x " + path + "/bin/*.sh"
         );
     }

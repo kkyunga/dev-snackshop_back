@@ -73,6 +73,4 @@ public class UserOsInstanceEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-
 }

@@ -25,4 +25,12 @@ public class MiddlewareEntity {
     // 버전의 최신 순서(숫자가 높을수록 최신)
     @Column(name = "version_order")
     private int versionOrder;
+
+    // 기본 설치경로
+    @Column(name = "default_path")
+    private String defaultPath;
+
+    // 간단 자동설치 여부(서버 추가 시 사용)
+    @Column(name = "is_simple_install")
+    private String isSimpleInstall;
 }
