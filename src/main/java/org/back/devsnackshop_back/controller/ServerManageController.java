@@ -1,9 +1,12 @@
 package org.back.devsnackshop_back.controller;
 
+import com.jcraft.jsch.JSchException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.common.ApiResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailInfoResponse;
+import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailResponse;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
 import org.back.devsnackshop_back.service.ServerManageService;
 import org.springframework.http.MediaType;
@@ -13,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +75,15 @@ public class ServerManageController {
         return ResponseEntity.ok(ApiResponse.success("서버가 추가되었습니다."));
     }
 
+    @GetMapping(value="/{id}")
+    public ResponseEntity<?> getServerDetail(@PathVariable("id") Long id) throws JSchException, IOException { // 여기서 타입을 Long으로!
+        //        log.info(id.toString());
+        ServerDetailInfoResponse response =  serverManageService.findServer(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
+
+    }
+
+
 
 
     @GetMapping(value = "/serverSpecItems")
@@ -79,6 +92,10 @@ public class ServerManageController {
         log.info(specs.toString());
         return ResponseEntity.ok(ApiResponse.success(specs));
      }
+
+
+
+
 
 
 

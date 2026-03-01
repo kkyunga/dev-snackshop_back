@@ -24,7 +24,7 @@ public class UserOsInstanceEntity {
     //클라우드 서비스
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cloud_id")
-    private CloudEntity cloudId;
+    private CloudEntity cloud;
 
     //서버 종류
     @Column(name="server_type")
@@ -33,7 +33,7 @@ public class UserOsInstanceEntity {
     //OS 버전
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "os_id")
-    private OsDistributionsEntity osId;
+    private OsDistributionsEntity os;
 
     // IP 주소
     @Column(name = "ip_address")

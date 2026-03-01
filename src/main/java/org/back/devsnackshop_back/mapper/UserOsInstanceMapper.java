@@ -1,6 +1,7 @@
 package org.back.devsnackshop_back.mapper;
 
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailInfoResponse;
 import org.back.devsnackshop_back.entity.CloudEntity;
 import org.back.devsnackshop_back.entity.OsDistributionsEntity;
 import org.back.devsnackshop_back.entity.UserOsInstanceEntity;
@@ -10,8 +11,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class UserOsInstanceMapper {
+
     @Autowired
     protected OsDistributionsRepository osRepository;
 
@@ -24,9 +27,9 @@ public abstract class UserOsInstanceMapper {
     @Mapping(source = "port", target = "portNumber")
     @Mapping(source = "osType", target = "serverOsType")
 
-    // ID 기반 조회 메서드 연결
-    @Mapping(target = "osId", expression = "java(resolveOs(dto))")
-    @Mapping(target = "cloudId", expression = "java(resolveCloud(dto))")
+    // 🚨 핵심 수정 부분: target을 엔티티의 새로운 필드명(os, cloud)으로 변경
+    @Mapping(target = "os", expression = "java(resolveOs(dto))")
+    @Mapping(target = "cloud", expression = "java(resolveCloud(dto))")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     public abstract UserOsInstanceEntity toEntity(ServerCreateRequest dto);
 
@@ -51,4 +54,24 @@ public abstract class UserOsInstanceMapper {
             return null;
         }
     }
-}
+
+
+    @Mapping(source = "entity.alias", target = "label")
+    @Mapping(source = "entity.ipAddress", target = "ip")
+    @Mapping(source = "entity.portNumber", target = "port")
+    @Mapping(source = "entity.serverOsType", target = "osType")
+
+    // 엔티티 구조에 따른 매핑 (os.distroName + os.version 조합)
+    @Mapping(target = "osVersion", expression = "java(entity.getOs().getDistroName() + \" \" + entity.getOs().getVersion())")
+
+    // cloud.cloudTypeName 매핑
+    @Mapping(source = "entity.cloud.cloudTypeName", target = "cloudService")
+
+    // 외부 파라미터 매핑 (이름을 cpuInfo로 일치시켰습니다)
+    @Mapping(source = "cpuInfo", target = "cpuInfo")
+
+    // 나머지 필드들
+    @Mapping(source = "entity.country", target = "country")
+    @Mapping(source = "entity.username", target = "username")
+    @Mapping(source = "entity.password", target = "password")
+    public abstract ServerDetailInfoResponse toDetailServerInfoResponse(UserOsInstanceEntity entity, String cpuInfo);}

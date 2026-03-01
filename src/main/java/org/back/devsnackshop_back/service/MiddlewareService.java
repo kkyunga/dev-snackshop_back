@@ -180,7 +180,7 @@ public class MiddlewareService {
         dto.setIp(entity.getIpAddress());
         dto.setUsername(entity.getUsername());
         dto.setPort(entity.getPortNumber());
-        dto.setOs(entity.getOsId().getDistroName());
+        dto.setOs(entity.getOs().getDistroName());
         dto.setPassword(entity.getPassword());
 
         return dto;

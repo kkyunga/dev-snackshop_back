@@ -37,10 +37,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileService {
     // application.properties에 설정된 경로를 가져오는 것을 추천합니다.
     @Value("${file.upload-path}")
     private String uploadPath;
+
+
+    private final AttachmentRepository attachmentRepository;
+
 
     /**
      * 파일 저장 공통 로직
@@ -90,4 +95,19 @@ public class FileService {
             throw new RuntimeException("파일 저장에 실패했습니다.");
         }
     }
+
+    public byte[] downloadFile(Long attachmentId) {
+        // 1. DB에서 파일 정보 조회
+        AttachmentEntity attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new RuntimeException("파일을 찾을 수 없습니다."));
+
+        try {
+            Path path = Paths.get(attachment.getFilePath()).resolve(attachment.getStoredFileName());
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 읽기 실패", e);
+        }
+    }
+
+
 }

@@ -1,14 +1,15 @@
 package org.back.devsnackshop_back.service;
 
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
-import org.back.devsnackshop_back.dto.serververManage.response.CloudItemResponse;
-import org.back.devsnackshop_back.dto.serververManage.response.OsDistributionsResponse;
-import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
-import org.back.devsnackshop_back.dto.serververManage.response.ServerPurposeResponse;
+import org.back.devsnackshop_back.dto.serververManage.response.*;
 import org.back.devsnackshop_back.entity.*;
 import org.back.devsnackshop_back.mapper.*;
 import org.back.devsnackshop_back.repository.*;
@@ -19,7 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -52,7 +55,7 @@ public class ServerManageService {
 
 
         UserOsInstanceEntity instanceEntity = userOsInstanceRepository.findByIpAddress(serverCreateRequest.getIp());
-        if(instanceEntity.getId() !=0){
+        if(instanceEntity!= null){
             throw new DataIntegrityViolationException("이미 등록된 IP 주소(" + serverCreateRequest.getIp() + ")입니다.");
         }
 
@@ -111,11 +114,11 @@ public class ServerManageService {
                     return ServerListResponse.builder()
                             .id(entity.getId())
                             .label(entity.getAlias())
-                            .cloudService(entity.getCloudId().getCloudTypeName())
+                            .cloudService(entity.getCloud().getCloudTypeName())
                             .country(entity.getCountry())
                             .ip(entity.getIpAddress())
                             .port(entity.getPortNumber())
-                            .os(entity.getOsId().getDistroName() + " " + entity.getOsId().getVersion())
+                            .os(entity.getOs().getDistroName() + " " + entity.getOs().getVersion())
                             .middlewares(mdResList)
                             .build();
                 })
@@ -193,5 +196,59 @@ public class ServerManageService {
 
 
 
+    }
+
+    public ServerDetailInfoResponse findServer(Long id) throws JSchException, IOException {
+        UserOsInstanceEntity entity = userOsInstanceRepository.findById(id).orElseThrow( ()-> new EntityNotFoundException("서버를 찾을 수 없습니다."));
+        String cpuModel = "";
+
+        if (entity.getAttachmentId() != null) {
+            // PEM 파일 방식 (파일 서비스에서 실제 파일 바이트를 가져와야 함)
+            byte[] pemPrivateKey = fileService.downloadFile(entity.getAttachmentId());
+            cpuModel = executeSshCommand(entity, pemPrivateKey , null);
+        }else
+        {
+            cpuModel = executeSshCommand(entity, null , entity.getPassword());
+        }
+        return userOsInstanceMapper.toDetailServerInfoResponse(entity,cpuModel);
+
+    }
+
+    private String executeSshCommand(UserOsInstanceEntity entity, byte[] pemKey, String password) throws JSchException, IOException {
+        JSch jsch = new JSch();
+        Session session = null;
+
+        // 1. 인증 방식 설정
+        if (pemKey != null) {
+            // PEM 키 데이터가 있으면 개인키 인증 등록
+            jsch.addIdentity("key-auth", pemKey, null, null);
+        }
+
+        session = jsch.getSession(entity.getUsername(), entity.getIpAddress(), entity.getPortNumber().intValue());
+
+        if (password != null) {
+            // 패스워드가 있으면 패스워드 설정
+            session.setPassword(password);
+        }
+
+        // 2. 세션 옵션 설정
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect(5000); // 타임아웃 5초
+
+        // 3. CPU 모델 정보 추출 명령어 실행
+        ChannelExec channel = (ChannelExec) session.openChannel("exec");
+        // 리눅스에서 CPU 모델명 한 줄만 깔끔하게 가져오는 명령
+        channel.setCommand("grep -m 1 'model name' /proc/cpuinfo | awk -F: '{print $2}' | sed 's/^[ \t]*//'");
+
+        InputStream in = channel.getInputStream();
+        channel.connect();
+
+        String result = new BufferedReader(new InputStreamReader(in))
+                .lines().collect(Collectors.joining(" ")).trim();
+
+        channel.disconnect();
+        session.disconnect();
+
+        return result.isEmpty() ? "정보 없음" : result;
     }
 }
