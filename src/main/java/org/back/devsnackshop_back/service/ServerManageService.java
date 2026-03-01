@@ -14,7 +14,6 @@ import org.back.devsnackshop_back.mapper.*;
 import org.back.devsnackshop_back.repository.*;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.mapstruct.ap.shaded.freemarker.template.utility.NullArgumentException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -224,7 +223,7 @@ public class ServerManageService {
                     .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 가진 사용자를 찾을 수 없습니다: " + authentication.getName()));
 
             UserOsInstanceEntity userOs = userOsInstanceRepository.findByUserAndId(user, userOsId)
-                    .orElseThrow(() -> new NullArgumentException("사용자의 서버 정보를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new IllegalArgumentException("사용자의 서버 정보를 찾을 수 없습니다."));
 
             installedMiddlewareRepository.deleteByUserOsId(userOs);
             userOsInstanceRepository.deleteById(userOsId);
