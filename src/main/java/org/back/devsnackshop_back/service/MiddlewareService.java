@@ -24,8 +24,6 @@ public class MiddlewareService {
 
     private final MiddlewareMapper middlewareMapper;
 
-    private final Map<String, String> statusStore = new ConcurrentHashMap<>();
-
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public void saveMiddlewareInstall(InstallRequest request) {
         UserOsInstanceEntity instance = userOsInstanceRepository.findByIdWithAll(request.getUserOsInstanceId())
@@ -58,11 +56,6 @@ public class MiddlewareService {
             installedMiddlewareRepository.flush(); // 즉시 반영 강제
             log.info("Successfully saved {} entities to DB", entityList.size());
         }
-    }
-
-    // 상태 확인용 메소드
-    public String getStatus(String taskId) {
-        return statusStore.getOrDefault(taskId, "NOT_FOUND");
     }
 
     @Transactional(readOnly = true)

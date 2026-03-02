@@ -9,9 +9,13 @@ public class ApacheTask implements MiddlewareTask {
 
     @Override
     public List<String> getPackageInstallCommand(String version, String sudoPrefix) {
+        String pkg = (version == null || version.isBlank())
+                ? "apache2"
+                : "apache2=" + version + "*";
+
         return List.of(
                 sudoPrefix + "apt-get update",
-                sudoPrefix + "apt-get install -y apache2",
+                sudoPrefix + "apt-get install -y " + pkg,
                 sudoPrefix + "systemctl enable --now apache2"
         );
     }

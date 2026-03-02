@@ -21,7 +21,7 @@ public class MiddlewareTaskFactory {
         if (middlewareName.equals("mysql")) return mysqlTask;
         if (middlewareName.equals("nginx")) return nginxTask;
         if (middlewareName.equals("java")) return javaTask;
-        if (middlewareName.equals("apache")) return apacheTask;
+        if (middlewareName.equals("apache") || middlewareName.equals("apache2")) return apacheTask;
         if (middlewareName.equals("nodejs")) return nodejsTask;
         if (middlewareName.equals("php")) return phpTask;
         if (middlewareName.equals("python")) return pythonTask;

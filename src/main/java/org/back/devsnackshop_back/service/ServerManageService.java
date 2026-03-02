@@ -53,21 +53,16 @@ public class ServerManageService {
 
     @Transactional
     public void createServer(ServerCreateRequest serverCreateRequest,MultipartFile keyFile, Authentication authentication) {
-
-
         Optional<UserOsInstanceEntity> instanceEntity = userOsInstanceRepository.findByIpAddress(serverCreateRequest.getIp());
-        if(instanceEntity!= null){
+        if(instanceEntity.isPresent()){
             throw new DataIntegrityViolationException("이미 등록된 IP 주소(" + serverCreateRequest.getIp() + ")입니다.");
         }
-
-
 
         UserOsInstanceEntity serverEntity = userOsInstanceMapper.toEntity(serverCreateRequest);
         // 2. [수정] 실제 DB에 저장된 유저 정보를 가져옵니다. (ID가 포함된 유저)
         String email = authentication.getName();
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-
 
         serverEntity.setUser(userEntity);
 
@@ -86,8 +81,6 @@ public class ServerManageService {
         }
         log.info(serverEntity.toString());
         userOsInstanceRepository.save(serverEntity);
-
-
     }
 
     @Transactional(readOnly = true)
