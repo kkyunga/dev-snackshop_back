@@ -23,11 +23,15 @@ public class ServerMetricsDocument {
 
     private Long serverId;
     private Double cpuUsage;
+    private Integer cpuCores;
+    private Integer cpuThreads;
     private Double memoryUsed;
     private Double memoryTotal;
     private Double memoryPercentage;
     private String diskUsed;
     private String diskTotal;
+    private Integer diskUsedGb;
+    private Integer diskTotalGb;
     private Double diskPercentage;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)

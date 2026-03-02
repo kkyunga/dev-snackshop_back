@@ -199,7 +199,7 @@ public class ServerManageService {
 
 
     }
-
+    @Transactional(readOnly = true)
     public ServerDetailInfoResponse findServer(Long id) throws JSchException, IOException {
         UserOsInstanceEntity entity = userOsInstanceRepository.findById(id).orElseThrow( ()-> new EntityNotFoundException("서버를 찾을 수 없습니다."));
         String cpuModel = "";

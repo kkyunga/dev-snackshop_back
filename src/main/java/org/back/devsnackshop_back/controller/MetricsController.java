@@ -3,13 +3,11 @@ package org.back.devsnackshop_back.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.elastic.request.MetricsRequest;
+import org.back.devsnackshop_back.dto.serververManage.response.MetricsResponse;
 import org.back.devsnackshop_back.entity.elastic.ServerMetricsDocument;
 import org.back.devsnackshop_back.service.MetricsService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -24,4 +22,13 @@ public class MetricsController{
         metricsService.save(request);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/server/latest")
+    public ResponseEntity<?> getServerMetrics(@RequestParam Long serverId) {
+        return ResponseEntity.ok(metricsService.getMetrics(serverId));
+    }
+
+
+
+
 }

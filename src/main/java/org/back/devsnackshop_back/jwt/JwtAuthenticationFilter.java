@@ -26,9 +26,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
+            String path = request.getServletPath();
+            String method = request.getMethod();
             // [강제 통과] 웹소켓 관련 요청은 로직을 아예 실행하지 않고 바로 다음 필터로 토스
             if (request.getServletPath().startsWith("/ws-connect") ||
-                    request.getServletPath().startsWith("/metrics")) {
+                    (path.startsWith("/metrics") && "POST".equalsIgnoreCase(method))) {
                 filterChain.doFilter(request, response);
                 return;
             }

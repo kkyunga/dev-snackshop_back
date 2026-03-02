@@ -38,10 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/ws-connect", "/ws-connect/", "/ws-connect/**").permitAll() // 웹소켓 경로 허용
                         .requestMatchers("/auth/login","/auth/tokenFactory","/auth/findEmail","/auth/reset-password-link","/auth/findPassword","/auth/updatePassword","/auth/signup","/auth/confirmEmail").permitAll()  // 로그인/회원가입 허용
                         .requestMatchers("/servers/**").authenticated()
-//                        .requestMatchers("/metrics", "/metrics/**", "/api/metrics", "/api/metrics/**").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/metrics", "POST")).permitAll()  // 명시적
+                        .requestMatchers("/metrics/**").authenticated()
 
-                        .requestMatchers("/ws/**").permitAll()         // WebSocket 허용
+                                .requestMatchers("/ws/**").permitAll()         // WebSocket 허용
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
