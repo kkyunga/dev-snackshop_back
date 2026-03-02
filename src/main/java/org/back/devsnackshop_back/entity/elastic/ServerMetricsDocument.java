@@ -36,4 +36,8 @@ public class ServerMetricsDocument {
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime timestamp;
+
+    private Double networkRxKb;
+    private Double networkTxKb;
+
 }

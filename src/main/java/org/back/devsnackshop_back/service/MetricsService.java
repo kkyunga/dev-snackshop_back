@@ -23,17 +23,19 @@ public class MetricsService {
             serverMetricsRepository.save(ServerMetricsDocument.builder()
                     .serverId(request.getServerId())
                     .cpuUsage(request.getCpuUsage())
-                    .cpuCores(request.getCpuCores())        // 추가
-                    .cpuThreads(request.getCpuThreads())    // 추가
+                    .cpuCores(request.getCpuCores())
+                    .cpuThreads(request.getCpuThreads())
                     .memoryUsed(request.getMemoryUsed())
                     .memoryTotal(request.getMemoryTotal())
                     .memoryPercentage(request.getMemoryPercentage())
                     .diskUsed(request.getDiskUsed())
                     .diskTotal(request.getDiskTotal())
-                    .diskUsedGb(request.getDiskUsedGb())    // 추가
-                    .diskTotalGb(request.getDiskTotalGb())  // 추가
+                    .diskUsedGb(request.getDiskUsedGb())
+                    .diskTotalGb(request.getDiskTotalGb())
                     .diskPercentage(request.getDiskPercentage())
                     .timestamp(LocalDateTime.now())
+                    .networkRxKb(request.getNetworkRxKb())
+                    .networkTxKb(request.getNetworkTxKb())
                     .build());
         }
     @Transactional
@@ -53,6 +55,8 @@ public class MetricsService {
                         .diskUsedGb(doc.getDiskUsedGb())
                         .diskTotalGb(doc.getDiskTotalGb())
                         .diskPercentage(doc.getDiskPercentage())
+                        .networkRxKb(doc.getNetworkRxKb())   // 추가
+                        .networkTxKb(doc.getNetworkTxKb())   // 추가
                         .build())
                 .collect(Collectors.toList());
     }

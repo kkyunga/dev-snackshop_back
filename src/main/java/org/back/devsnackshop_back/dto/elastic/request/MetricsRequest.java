@@ -17,4 +17,6 @@ public class MetricsRequest {
     private Integer diskUsedGb;     // 추가
     private Integer diskTotalGb;    // 추가
     private Double diskPercentage;
+    private Double networkRxKb;   // 추가
+    private Double networkTxKb;   // 추가
 }
