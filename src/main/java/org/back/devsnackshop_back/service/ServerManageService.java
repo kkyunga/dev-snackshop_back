@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.*;
+import org.back.devsnackshop_back.dto.systemLog.ServerConnection;
 import org.back.devsnackshop_back.entity.*;
 import org.back.devsnackshop_back.mapper.*;
 import org.back.devsnackshop_back.repository.*;
@@ -196,15 +197,31 @@ public class ServerManageService {
     public ServerDetailInfoResponse findServer(Long id) throws JSchException, IOException {
         UserOsInstanceEntity entity = userOsInstanceRepository.findById(id).orElseThrow( ()-> new EntityNotFoundException("서버를 찾을 수 없습니다."));
         String cpuModel = "";
-
+        String authType ="";
         if (entity.getAttachmentId() != null) {
             // PEM 파일 방식 (파일 서비스에서 실제 파일 바이트를 가져와야 함)
+            AttachmentEntity attachmentEntity = attachmentRepository.findById(entity.getAttachmentId()).orElseThrow(
+                    () -> new EntityNotFoundException("파일을 찾을 수 없습니다.")
+            );
+            String[] splitFileArr = attachmentEntity.getOriginFileName().split("\\.");
+            String fileExt = splitFileArr[splitFileArr.length-1];
+
+            if("".equals(fileExt) && !entity.getPassword().isEmpty()) {
+                authType = "비밀번호 인증";
+            }
+            else if("pem".equals(fileExt)) {
+                authType ="키파일 인증";
+            }
+
+
+
+
             byte[] pemPrivateKey = fileService.downloadFile(entity.getAttachmentId());
             cpuModel = executeSshCommand(entity, pemPrivateKey, null);
         } else {
             cpuModel = executeSshCommand(entity, null, entity.getPassword());
         }
-        return userOsInstanceMapper.toDetailServerInfoResponse(entity, cpuModel);
+        return userOsInstanceMapper.toDetailServerInfoResponse(entity, cpuModel,authType);
 
     }
 
@@ -261,5 +278,30 @@ public class ServerManageService {
         session.disconnect();
 
         return result.isEmpty() ? "정보 없음" : result;
+    }
+
+    @Transactional(readOnly = true)   // ← 이것만 추가
+    public ServerConnection getConnection(Long serverId) {
+
+        UserOsInstanceEntity entity = userOsInstanceRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("서버를 찾을 수 없습니다. id=" + serverId));
+        String pemKeyPath = "C:\\dev_storage\\snack_shop\\keys\\5d7161a7-b5fd-4cfa-bdd2-6eb8b41cf67c_server-test_key.pem";
+        if(entity.getAttachmentId() != null && "".equals(entity.getPassword()))
+        {
+            return ServerConnection.withPemPath(
+                    entity.getIpAddress(),
+                    40022,
+                    "vboxuser",
+                    pemKeyPath
+            );
+        }else
+        {
+            return ServerConnection.withPassword(
+                    entity.getIpAddress(),
+                    40022,      // ✅
+                    "vboxuser",
+                    entity.getPassword()
+            );
+        }
     }
 }

@@ -20,6 +20,6 @@ public class MetricsResponse {
     private Integer diskUsedGb;
     private Integer diskTotalGb;
     private Double diskPercentage;
-    private Double networkRxKb;   // 추가
-    private Double networkTxKb;   // 추가
+    private Double networkRxKb;
+    private Double networkTxKb;
 }

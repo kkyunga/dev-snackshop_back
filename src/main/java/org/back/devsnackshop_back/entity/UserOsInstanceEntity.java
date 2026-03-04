@@ -52,11 +52,7 @@ public class UserOsInstanceEntity {
     private String username;
 
 
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "connection_method_id")
-//    private ConnectionMethodEntity connectionMethodId;
-//
+
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "privilege_id")
 //    private PrivilegeEntity privilegeId;

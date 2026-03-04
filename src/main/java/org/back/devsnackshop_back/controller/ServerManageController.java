@@ -8,7 +8,10 @@ import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailInfoResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerRemoveRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
+import org.back.devsnackshop_back.dto.systemLog.FullLogReport;
+import org.back.devsnackshop_back.dto.systemLog.ServerConnection;
 import org.back.devsnackshop_back.service.ServerManageService;
+import org.back.devsnackshop_back.utils.SystemLogAnalyzer;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +29,8 @@ import java.util.List;
 public class ServerManageController {
 
     private final ServerManageService serverManageService;
+
+    private final SystemLogAnalyzer systemLogAnalyzer;
 
 
 
@@ -75,11 +80,29 @@ public class ServerManageController {
 
     @GetMapping(value="/{id}")
     public ResponseEntity<?> getServerDetail(@PathVariable("id") Long id) throws JSchException, IOException { // 여기서 타입을 Long으로!
-        //        log.info(id.toString());
-        ServerDetailInfoResponse response =  serverManageService.findServer(id);
+         ServerDetailInfoResponse response =  serverManageService.findServer(id);
         return ResponseEntity.ok(ApiResponse.success(response));
 
     }
+
+
+    @GetMapping("/summary/{serverId}")
+    public ResponseEntity<FullLogReport> getSummary(@PathVariable Long serverId) {
+        ServerConnection conn = serverManageService.getConnection(serverId);
+
+        try {
+
+            FullLogReport report = systemLogAnalyzer.analyze(conn);
+            return ResponseEntity.ok(report);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+
+
+
+
 
 
 

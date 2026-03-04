@@ -69,9 +69,10 @@ public abstract class UserOsInstanceMapper {
 
     // 외부 파라미터 매핑 (이름을 cpuInfo로 일치시켰습니다)
     @Mapping(source = "cpuInfo", target = "cpuInfo")
+    @Mapping(source = "authType", target = "authType")
 
     // 나머지 필드들
     @Mapping(source = "entity.country", target = "country")
     @Mapping(source = "entity.username", target = "username")
     @Mapping(source = "entity.password", target = "password")
-    public abstract ServerDetailInfoResponse toDetailServerInfoResponse(UserOsInstanceEntity entity, String cpuInfo);}
+    public abstract ServerDetailInfoResponse toDetailServerInfoResponse(UserOsInstanceEntity entity, String cpuInfo,String authType);}
