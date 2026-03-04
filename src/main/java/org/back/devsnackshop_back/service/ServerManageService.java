@@ -7,7 +7,6 @@ import com.jcraft.jsch.Session;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.back.devsnackshop_back.dto.serververManage.ServerConnectionRequest;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
 import org.back.devsnackshop_back.dto.serververManage.ServerUpdateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.*;
