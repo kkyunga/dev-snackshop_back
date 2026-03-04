@@ -7,7 +7,9 @@ import com.jcraft.jsch.Session;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.back.devsnackshop_back.dto.serververManage.ServerConnectionRequest;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.ServerUpdateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.*;
 import org.back.devsnackshop_back.dto.systemLog.ServerConnection;
 import org.back.devsnackshop_back.entity.*;
@@ -59,7 +61,7 @@ public class ServerManageService {
             throw new DataIntegrityViolationException("이미 등록된 IP 주소(" + serverCreateRequest.getIp() + ")입니다.");
         }
 
-        UserOsInstanceEntity serverEntity = userOsInstanceMapper.toEntity(serverCreateRequest);
+        UserOsInstanceEntity serverEntity = userOsInstanceMapper.createEntityFromDto(serverCreateRequest);
         // 2. [수정] 실제 DB에 저장된 유저 정보를 가져옵니다. (ID가 포함된 유저)
         String email = authentication.getName();
         UserEntity userEntity = userRepository.findByEmail(email)
@@ -68,7 +70,13 @@ public class ServerManageService {
         serverEntity.setUser(userEntity);
 
         // 3. 파일 처리 로직
+        byte[] keyBytes = null;
         if (keyFile != null && !keyFile.isEmpty()) {
+            try {
+                keyBytes = keyFile.getBytes(); // SSH 테스트를 위해 바이트 미리 확보
+            } catch (IOException e) {
+                throw new RuntimeException("키 파일을 읽는 중 오류가 발생했습니다.");
+            }
             // FileService에서 물리 파일 저장 후 엔티티 "생성" (아직 저장은 안 됨)
             AttachmentEntity fileInfo = fileService.saveFile(keyFile, "keys");
 
@@ -80,6 +88,16 @@ public class ServerManageService {
                 serverEntity.setAttachmentId(savedFile.getId());
             }
         }
+
+        try {
+            log.info("SSH 접속 검증 시작: {}", serverEntity.getIpAddress());
+            // executeSshCommand가 성공하면 그대로 진행, 실패하면 Exception 발생
+            executeSshCommand(serverEntity, keyBytes, serverEntity.getPassword());
+        } catch (JSchException | IOException e) {
+            log.error("SSH 접속 검증 실패: {}", e.getMessage());
+            throw new IllegalArgumentException("서버 접속에 실패했습니다. 정보를 다시 확인해주세요. (" + e.getMessage() + ")");
+        }
+
         log.info(serverEntity.toString());
         userOsInstanceRepository.save(serverEntity);
     }
@@ -119,6 +137,43 @@ public class ServerManageService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateServer(ServerUpdateRequest dto, MultipartFile keyFile) {
+        // 1. 기존 서버 엔티티 조회
+        UserOsInstanceEntity userOs = userOsInstanceRepository.findById(dto.getUserOsId())
+                .orElseThrow(() -> new EntityNotFoundException("서버 정보를 찾을 수 없습니다."));
+
+        Long currentId = userOs.getAttachmentId();
+        boolean isNewFilePresent = (keyFile != null && !keyFile.isEmpty());
+
+        // 2. 파일 조건별 처리
+        if (currentId == null && isNewFilePresent) {
+            // [조건 1] 신규 등록
+            AttachmentEntity saved = fileService.saveFile(keyFile, "keys");
+            userOs.setAttachmentId(saved.getId());
+
+        } else if (currentId != null && !isNewFilePresent) {
+            // [조건 2] 기존 파일 삭제 (사용자가 파일을 지우길 원함)
+            fileService.deleteFile(currentId);
+            userOs.setAttachmentId(null);
+
+        } else if (currentId != null && isNewFilePresent) {
+            // [조건 3] 교체 검토
+            AttachmentEntity currentFile = attachmentRepository.findById(currentId)
+                    .orElseThrow(() -> new EntityNotFoundException("기존 파일 정보를 찾을 수 없습니다."));
+
+            // 파일명이 다를 경우에만 교체 수행
+            if (!keyFile.getOriginalFilename().equals(currentFile.getOriginFileName())) {
+                fileService.deleteFile(currentId); // 기존 삭제
+                AttachmentEntity saved = fileService.saveFile(keyFile, "keys"); // 새 파일 저장
+                userOs.setAttachmentId(saved.getId());
+            }
+        }
+
+        // 3. 일반 필드 매핑 업데이트
+        userOsInstanceMapper.updateEntityFromDto(dto, userOs);
     }
 
     public boolean validateKeyFile(MultipartFile file, Authentication authentication) {
@@ -193,6 +248,7 @@ public class ServerManageService {
 
 
     }
+
     @Transactional(readOnly = true)
     public ServerDetailInfoResponse findServer(Long id) throws JSchException, IOException {
         UserOsInstanceEntity entity = userOsInstanceRepository.findById(id).orElseThrow( ()-> new EntityNotFoundException("서버를 찾을 수 없습니다."));

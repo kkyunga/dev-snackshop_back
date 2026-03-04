@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.common.ApiResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerCreateRequest;
+import org.back.devsnackshop_back.dto.serververManage.ServerUpdateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailInfoResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerRemoveRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
-import org.back.devsnackshop_back.dto.systemLog.FullLogReport;
-import org.back.devsnackshop_back.dto.systemLog.ServerConnection;
 import org.back.devsnackshop_back.service.ServerManageService;
 import org.back.devsnackshop_back.utils.SystemLogAnalyzer;
 import org.springframework.http.MediaType;
@@ -85,27 +84,18 @@ public class ServerManageController {
 
     }
 
-
-    @GetMapping("/summary/{serverId}")
-    public ResponseEntity<FullLogReport> getSummary(@PathVariable Long serverId) {
-        ServerConnection conn = serverManageService.getConnection(serverId);
-
-        try {
-
-            FullLogReport report = systemLogAnalyzer.analyze(conn);
-            return ResponseEntity.ok(report);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+    @PostMapping("/update")
+    public ResponseEntity<?> updateServer(
+            @RequestPart("request") ServerUpdateRequest serverUpdateRequest,
+            @RequestPart(value = "keyFile", required = false) MultipartFile keyFile
+            ) {
+        if (serverUpdateRequest.getUserOsId() == null) {
+            throw new IllegalArgumentException("서버 고유 ID는 필수입니다.");
         }
+
+        serverManageService.updateServer(serverUpdateRequest, keyFile);
+        return ResponseEntity.ok(ApiResponse.success("서버 정보 수정이 완료되었습니다."));
     }
-
-
-
-
-
-
-
-
 
     @GetMapping(value = "/serverSpecItems")
     public ResponseEntity<?> serverSpecItem() {

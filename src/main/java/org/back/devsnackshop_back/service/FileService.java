@@ -109,5 +109,21 @@ public class FileService {
         }
     }
 
+    public void deleteFile(Long attachmentId) {
+        AttachmentEntity attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new EntityNotFoundException("삭제할 파일 정보가 없습니다."));
 
+        try {
+            // 1. 물리적 파일 삭제
+            Path filePath = Paths.get(attachment.getFilePath()).resolve(attachment.getStoredFileName());
+            Files.deleteIfExists(filePath);
+            log.info("물리 파일 삭제 완료: {}", filePath);
+
+            // 2. DB 레코드 삭제
+            attachmentRepository.delete(attachment);
+        } catch (IOException e) {
+            log.error("파일 삭제 중 오류 발생: ", e);
+            throw new RuntimeException("물리 파일 삭제에 실패했습니다.");
+        }
+    }
 }
