@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/log")
 public class LogAnalyzeController {
     private final LogAnalyzeService logAnalyzeService;
-
+    //crontab 에 sudo 권한으로 저장하자 그럼 데이터 나옴
     @PostMapping("/analyze")
     public ResponseEntity<?> receiveMetrics(@RequestBody LogAnalyzeRequest request) {
         try {
