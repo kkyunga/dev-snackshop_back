@@ -169,4 +169,12 @@ public class LogAnalyzeService {
                     .orElseThrow(() -> new RuntimeException("로그 데이터 없음. serverId=" + serverId));
 
     }
+
+    public List<LogAnalyzeDocument> getHistory(Long serverId, int minutes) {
+
+        LocalDateTime since = LocalDateTime.now().minusMinutes(minutes);
+        return logAnalyzeRepository
+                .findByServerIdAndCollectedAtAfterOrderByCollectedAtDesc(serverId, since);
+
+    }
 }
