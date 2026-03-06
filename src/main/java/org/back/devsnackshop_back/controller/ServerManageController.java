@@ -9,8 +9,10 @@ import org.back.devsnackshop_back.dto.serververManage.ServerUpdateRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerDetailInfoResponse;
 import org.back.devsnackshop_back.dto.serververManage.ServerRemoveRequest;
 import org.back.devsnackshop_back.dto.serververManage.response.ServerListResponse;
+import org.back.devsnackshop_back.dto.systemLog.FullLogReport;
+import org.back.devsnackshop_back.dto.systemLog.ServerConnection;
 import org.back.devsnackshop_back.service.ServerManageService;
-import org.back.devsnackshop_back.utils.SystemLogAnalyzer;
+//import org.back.devsnackshop_back.utils.SystemLogAnalyzer;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,7 +31,6 @@ public class ServerManageController {
 
     private final ServerManageService serverManageService;
 
-    private final SystemLogAnalyzer systemLogAnalyzer;
 
 
 
@@ -83,6 +84,7 @@ public class ServerManageController {
         return ResponseEntity.ok(ApiResponse.success(response));
 
     }
+
 
     @PostMapping("/update")
     public ResponseEntity<?> updateServer(
