@@ -70,7 +70,7 @@ public class SecurityConfig {
 
         // 💡 Patterns를 사용해야 Credentials(true)와 충돌나지 않습니다.
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH","DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
         // 💡 쿠키나 인증 헤더를 허용하려면 true, curl 테스트를 가장 확실하게 하려면 잠시 false도 방법입니다.
