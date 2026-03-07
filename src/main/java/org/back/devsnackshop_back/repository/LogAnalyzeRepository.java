@@ -18,4 +18,7 @@ public interface LogAnalyzeRepository extends ElasticsearchRepository<LogAnalyze
     List<LogAnalyzeDocument> findTop10ByServerIdOrderByCollectedAtDesc(Long serverId);
 
     List<LogAnalyzeDocument> findByServerIdAndCollectedAtAfterOrderByCollectedAtDesc(Long serverId, LocalDateTime since);
+
+    List<LogAnalyzeDocument> findTop200ByServerIdOrderByCollectedAtDesc(Long serverId);
+
 }

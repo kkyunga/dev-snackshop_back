@@ -177,4 +177,9 @@ public class LogAnalyzeService {
                 .findByServerIdAndCollectedAtAfterOrderByCollectedAtDesc(serverId, since);
 
     }
+
+    public  List<LogAnalyzeDocument> getLogAnalyzeRecent(Long serverId) {
+      return  logAnalyzeRepository.findTop200ByServerIdOrderByCollectedAtDesc(serverId);
+
+    }
 }

@@ -58,6 +58,11 @@ public class LogAnalyzeController {
     }
 
 
-
+    @GetMapping("/analyze/{serverId}/recent")
+    public ResponseEntity<?> getLogAnalyzeRecent(@PathVariable Long serverId) {
+        return ResponseEntity.ok(
+                logAnalyzeService.getLogAnalyzeRecent(serverId)
+        );
+    }
 
 }
