@@ -19,5 +19,5 @@ public class ServerDetailInfoResponse {
     private String password;
     private List<ServerCreateRequest.SoftwareItem> softwareToInstall;
     private String cpuInfo;
-
+    private String fileName;
 }

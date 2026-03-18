@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface UserOsInstanceRepository extends JpaRepository<UserOsInstanceEntity, Long> {
     List<UserOsInstanceEntity> findByUser(UserEntity userEntity);
-    Optional<UserOsInstanceEntity> findByIpAddress(String ip);
+    Optional<UserOsInstanceEntity> findByIpAddressAndPortNumber(String ipAddress, Long portNumber);
 
     Optional<UserOsInstanceEntity> findByUserAndId(UserEntity user, Long id);
 

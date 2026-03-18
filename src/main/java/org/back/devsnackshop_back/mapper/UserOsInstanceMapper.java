@@ -109,5 +109,6 @@ public abstract class UserOsInstanceMapper {
     @Mapping(source = "entity.country", target = "country")
     @Mapping(source = "entity.username", target = "username")
     @Mapping(source = "entity.password", target = "password")
-    public abstract ServerDetailInfoResponse toDetailServerInfoResponse(UserOsInstanceEntity entity, String cpuInfo,String authType);
+    @Mapping(source = "fileName", target = "fileName")
+    public abstract ServerDetailInfoResponse toDetailServerInfoResponse(UserOsInstanceEntity entity, String cpuInfo,String authType, String fileName);
 }

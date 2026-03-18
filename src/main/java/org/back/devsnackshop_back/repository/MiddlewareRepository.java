@@ -12,4 +12,13 @@ public interface MiddlewareRepository extends JpaRepository<MiddlewareEntity, Lo
     MiddlewareEntity findByMiddlewareNameAndVersion(String name, String version);
     MiddlewareEntity findTopByMiddlewareNameOrderByVersionOrderDesc(String name);
     List<MiddlewareEntity> findByIsSimpleInstall(String isSimpleInstall);
+
+    @Query(value = "SELECT t.id, t.middleware_name, t.middleware_type, t.version, t.version_order, t.is_simple_install, t.default_path, t.default_port " +
+            "FROM (" +
+            "    SELECT *, " +
+            "    ROW_NUMBER() OVER (PARTITION BY middleware_name ORDER BY version_order DESC) as rn " +
+            "    FROM middlewares" +
+            ") t " +
+            "WHERE t.rn = 1", nativeQuery = true)
+    List<MiddlewareEntity> findByTopVersionOrder();
 }

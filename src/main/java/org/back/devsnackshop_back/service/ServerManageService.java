@@ -55,7 +55,7 @@ public class ServerManageService {
 
     @Transactional
     public void createServer(ServerCreateRequest serverCreateRequest,MultipartFile keyFile, Authentication authentication) {
-        Optional<UserOsInstanceEntity> instanceEntity = userOsInstanceRepository.findByIpAddress(serverCreateRequest.getIp());
+        Optional<UserOsInstanceEntity> instanceEntity = userOsInstanceRepository.findByIpAddressAndPortNumber(serverCreateRequest.getIp(), Long.parseLong(serverCreateRequest.getPort()));
         if(instanceEntity.isPresent()){
             throw new DataIntegrityViolationException("이미 등록된 IP 주소(" + serverCreateRequest.getIp() + ")입니다.");
         }
@@ -148,25 +148,23 @@ public class ServerManageService {
         boolean isNewFilePresent = (keyFile != null && !keyFile.isEmpty());
 
         // 2. 파일 조건별 처리
-        if (currentId == null && isNewFilePresent) {
-            // [조건 1] 신규 등록
-            AttachmentEntity saved = fileService.saveFile(keyFile, "keys");
-            userOs.setAttachmentId(saved.getId());
+        if (dto.isKeyFileDelete()) {
+            // 기존 파일 삭제 (연결된 파일이 있을 경우)
+            if (currentId != null) {
+                fileService.deleteFile(currentId);
+                userOs.setAttachmentId(null);
+            }
 
-        } else if (currentId != null && !isNewFilePresent) {
-            // [조건 2] 기존 파일 삭제 (사용자가 파일을 지우길 원함)
-            fileService.deleteFile(currentId);
-            userOs.setAttachmentId(null);
+            // 새로운 파일이 있으면 추가
+            if (isNewFilePresent) {
+                AttachmentEntity saved = fileService.saveFile(keyFile, "keys");
+                userOs.setAttachmentId(saved.getId());
+            }
 
-        } else if (currentId != null && isNewFilePresent) {
-            // [조건 3] 교체 검토
-            AttachmentEntity currentFile = attachmentRepository.findById(currentId)
-                    .orElseThrow(() -> new EntityNotFoundException("기존 파일 정보를 찾을 수 없습니다."));
-
-            // 파일명이 다를 경우에만 교체 수행
-            if (!keyFile.getOriginalFilename().equals(currentFile.getOriginFileName())) {
-                fileService.deleteFile(currentId); // 기존 삭제
-                AttachmentEntity saved = fileService.saveFile(keyFile, "keys"); // 새 파일 저장
+        } else {
+            // isKeyFileDelete == false: 새 파일만 있으면 추가
+            if (isNewFilePresent) {
+                AttachmentEntity saved = fileService.saveFile(keyFile, "keys");
                 userOs.setAttachmentId(saved.getId());
             }
         }
@@ -253,11 +251,13 @@ public class ServerManageService {
         UserOsInstanceEntity entity = userOsInstanceRepository.findById(id).orElseThrow( ()-> new EntityNotFoundException("서버를 찾을 수 없습니다."));
         String cpuModel = "";
         String authType ="";
+        String fileName = "";
         if (entity.getAttachmentId() != null) {
             // PEM 파일 방식 (파일 서비스에서 실제 파일 바이트를 가져와야 함)
             AttachmentEntity attachmentEntity = attachmentRepository.findById(entity.getAttachmentId()).orElseThrow(
                     () -> new EntityNotFoundException("파일을 찾을 수 없습니다.")
             );
+            fileName = attachmentEntity.getOriginFileName();
             String[] splitFileArr = attachmentEntity.getOriginFileName().split("\\.");
             String fileExt = splitFileArr[splitFileArr.length-1];
 
@@ -268,16 +268,12 @@ public class ServerManageService {
                 authType ="키파일 인증";
             }
 
-
-
-
             byte[] pemPrivateKey = fileService.downloadFile(entity.getAttachmentId());
             cpuModel = executeSshCommand(entity, pemPrivateKey, null);
         } else {
             cpuModel = executeSshCommand(entity, null, entity.getPassword());
         }
-        return userOsInstanceMapper.toDetailServerInfoResponse(entity, cpuModel,authType);
-
+        return userOsInstanceMapper.toDetailServerInfoResponse(entity, cpuModel,authType, fileName);
     }
 
     @Transactional

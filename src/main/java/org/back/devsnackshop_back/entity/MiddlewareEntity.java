@@ -30,6 +30,10 @@ public class MiddlewareEntity {
     @Column(name = "default_path")
     private String defaultPath;
 
+    // 기본 포트
+    @Column(name = "default_port")
+    private Long defaultPort;
+
     // 간단 자동설치 여부(서버 추가 시 사용)
     @Column(name = "is_simple_install")
     private String isSimpleInstall;

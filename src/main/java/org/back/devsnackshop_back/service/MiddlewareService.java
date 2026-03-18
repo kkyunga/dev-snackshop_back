@@ -1,10 +1,11 @@
 package org.back.devsnackshop_back.service;
 
+import org.back.devsnackshop_back.dto.middlewareManage.response.MiddlewareListResponse;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.middlewareManage.InstallRequest;
-import org.back.devsnackshop_back.dto.middlewareManage.response.MiddlewareListResponse;
+import org.back.devsnackshop_back.dto.middlewareManage.response.MiddlewareUserOsListResponse;
 import org.back.devsnackshop_back.dto.middlewareManage.response.SimpleMiddlewareListResponse;
 import org.back.devsnackshop_back.entity.*;
 import org.back.devsnackshop_back.mapper.MiddlewareMapper;
@@ -12,7 +13,6 @@ import org.back.devsnackshop_back.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -59,13 +59,37 @@ public class MiddlewareService {
     }
 
     @Transactional(readOnly = true)
-    public List<MiddlewareListResponse> middlewareList(long userOsId) {
-        List<MiddlewareListResponse> result = new ArrayList<>();
+    public List<MiddlewareListResponse> middlewareList() {
+        List<MiddlewareEntity> mdList = middlewareRepository.findByTopVersionOrder();
+        HashMap<String, MiddlewareListResponse> map = new HashMap<>();
+
+        for (MiddlewareEntity md : mdList) {
+            if (map.get(md.getMiddlewareName()) == null) {
+                MiddlewareListResponse response = MiddlewareListResponse.builder()
+                        .name(md.getMiddlewareName())
+                        .category(md.getMiddlewareType())
+                        .versions(new ArrayList<>(List.of(md.getVersion())))
+                        .defaultPath(md.getDefaultPath())
+                        .defaultPort(md.getDefaultPort())
+                        .build();
+                map.put(md.getMiddlewareName(), response);
+            } else {
+                MiddlewareListResponse response = map.get(md.getMiddlewareName());
+                response.getVersions().add(md.getVersion());
+            }
+        }
+
+        return new ArrayList<>(map.values());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MiddlewareUserOsListResponse> middlewareUserOsList(long userOsId) {
+        List<MiddlewareUserOsListResponse> result = new ArrayList<>();
 
         List<InstalledMiddlewareEntity> mdList = installedMiddlewareRepository.findAllByUserOsId(userOsId);
 
         for (InstalledMiddlewareEntity md : mdList) {
-            MiddlewareListResponse res = MiddlewareListResponse.builder()
+            MiddlewareUserOsListResponse res = MiddlewareUserOsListResponse.builder()
                     .name(md.getMiddlewareId().getMiddlewareName())
                     .type(md.getMiddlewareId().getMiddlewareType())
                     .version(md.getMiddlewareId().getVersion())

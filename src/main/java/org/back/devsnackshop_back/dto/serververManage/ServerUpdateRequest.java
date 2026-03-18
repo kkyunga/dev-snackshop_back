@@ -18,4 +18,5 @@ public class ServerUpdateRequest {
     private String authType;
     private String username;
     private String password;
+    private boolean keyFileDelete;
 }

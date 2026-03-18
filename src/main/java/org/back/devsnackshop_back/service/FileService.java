@@ -81,7 +81,7 @@ public class FileService {
             // DB 저장 시에는 슬래시(/)로 통일하는 것이 나중에 리눅스 서버 등에서 관리하기 편합니다.
             String dbFilePath = rootPath.toString().replace("\\", "/");
 
-            return AttachmentEntity.builder()
+            AttachmentEntity attachment = AttachmentEntity.builder()
                     .originFileName(originalFileName)
                     .storedFileName(savedFileName)
                     .filePath(dbFilePath) // 정규화된 경로 저장
@@ -89,6 +89,8 @@ public class FileService {
                     .fileType(file.getContentType())
                     .createdAt(LocalDateTime.now())
                     .build();
+
+            return attachmentRepository.save(attachment);
 
         } catch (IOException e) {
             log.error("파일 저장 중 입출력 오류 발생: ", e);
