@@ -49,7 +49,7 @@ public class InstallMiddlewareService {
                 instance.getIpAddress(),
                 instance.getPortNumber().intValue(),
                 instance.getPassword(),
-                keyFile != null ? keyFile.getFilePath() : null
+                keyFile != null ? keyFile.getFilePath() + "/" + keyFile.getStoredFileName() : null
         );
     }
 

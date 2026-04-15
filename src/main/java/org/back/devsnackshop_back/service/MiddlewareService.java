@@ -60,7 +60,7 @@ public class MiddlewareService {
 
     @Transactional(readOnly = true)
     public List<MiddlewareListResponse> middlewareList() {
-        List<MiddlewareEntity> mdList = middlewareRepository.findByTopVersionOrder();
+        List<MiddlewareEntity> mdList = middlewareRepository.findByMiddlewareList();
         HashMap<String, MiddlewareListResponse> map = new HashMap<>();
 
         for (MiddlewareEntity md : mdList) {
@@ -68,7 +68,7 @@ public class MiddlewareService {
                 MiddlewareListResponse response = MiddlewareListResponse.builder()
                         .name(md.getMiddlewareName())
                         .category(md.getMiddlewareType())
-                        .versions(new ArrayList<>(List.of(md.getVersion())))
+                        .versions(new ArrayList<>(List.of(md.getVersion().split(","))))
                         .defaultPath(md.getDefaultPath())
                         .defaultPort(md.getDefaultPort())
                         .build();
