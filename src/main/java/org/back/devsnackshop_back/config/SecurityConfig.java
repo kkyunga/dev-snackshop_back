@@ -1,4 +1,5 @@
 package org.back.devsnackshop_back.config;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.back.devsnackshop_back.jwt.JwtAuthenticationFilter;
@@ -35,6 +36,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/ws-connect", "/ws-connect/", "/ws-connect/**").permitAll() // 웹소켓 경로 허용
                         .requestMatchers("/auth/login","/auth/tokenFactory","/auth/findEmail","/auth/reset-password-link","/auth/findPassword","/auth/updatePassword","/auth/signup","/auth/confirmEmail").permitAll()  // 로그인/회원가입 허용
                         .requestMatchers("/servers/**").authenticated()

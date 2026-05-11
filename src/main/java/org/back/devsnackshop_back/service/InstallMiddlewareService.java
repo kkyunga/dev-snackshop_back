@@ -6,6 +6,7 @@ import com.jcraft.jsch.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.back.devsnackshop_back.dto.middlewareManage.InstallRequest;
+import org.back.devsnackshop_back.dto.middlewareManage.response.InstallStatusResponse;
 import org.back.devsnackshop_back.entity.AttachmentEntity;
 import org.back.devsnackshop_back.entity.UserOsInstanceEntity;
 import org.back.devsnackshop_back.repository.AttachmentRepository;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -54,7 +56,7 @@ public class InstallMiddlewareService {
     }
 
     @Async("installExecutor")
-    public void installMiddleware(InstallRequest request) {
+    public CompletableFuture<List<InstallStatusResponse>> installMiddleware(InstallRequest request) {
         try {
             // 1. DB 조회 (트랜잭션 시작 → 조회 → 커밋 → 커넥션 반환)
             SshConnectionInfo connInfo = loadSshConnectionInfo(request.getUserOsInstanceId());
@@ -64,7 +66,7 @@ public class InstallMiddlewareService {
             String sudoPrefix = connInfo.username().equals("root") ? "" : "sudo -S -p '' ";
 
             for (int i = 0; i < request.getMiddlewares().size(); i++) {
-                String mwName = request.getMiddlewares().get(i);
+                String mwName = request.getMiddlewares().get(i).toLowerCase();
                 String version = (request.getMwVersion() != null && request.getMwVersion().size() > i)
                         ? request.getMwVersion().get(i) : "";
 
@@ -82,20 +84,35 @@ public class InstallMiddlewareService {
             }
 
             // 3. SSH 실행 (DB 커넥션 없이 수행)
+            String installStatus = "설치성공";
             if (!commands.isEmpty()) {
                 try {
                     sshExecutor(connInfo, commands);
                     log.info("✅ SSH 실행 완료");
-
-                    // 4. DB 저장 (새 트랜잭션으로 커넥션 획득 → 저장 → 커밋 → 반환)
-                    middlewareService.saveMiddlewareInstall(request);
-                    log.info("✅ DB 저장 완료");
                 } catch (Exception e) {
-                    log.error("❌ SSH 실행 실패: {}", e.getMessage(), e);
+                    log.error("❌ SSH 실행 실패: {}", e.getMessage());
+                    installStatus = "설치실패";
                 }
             }
+
+            // 4. DB 저장 (새 트랜잭션으로 커넥션 획득 → 저장 → 커밋 → 반환)
+            middlewareService.saveMiddlewareInstall(request, installStatus);
+            log.info("✅ DB 저장 완료 (상태: {})", installStatus);
+
+            // 5. 요청한 미들웨어만 필터링해서 반환
+            List<String> requestedNames = request.getMiddlewares().stream()
+                    .map(String::toLowerCase)
+                    .toList();
+
+            List<InstallStatusResponse> result = middlewareService.getInstallStatus(request.getUserOsInstanceId())
+                    .stream()
+                    .filter(r -> requestedNames.contains(r.getMiddlewareName().toLowerCase()))
+                    .toList();
+
+            return CompletableFuture.completedFuture(result);
         } catch (Exception e) {
             log.error("Middleware Install Error: {}", e.getMessage(), e);
+            return CompletableFuture.failedFuture(e);
         }
     }
 
@@ -154,7 +171,11 @@ public class InstallMiddlewareService {
 
             if (channel.isClosed()) {
                 if (in.available() > 0) continue;
-                log.info("Command Exit Status: {}", channel.getExitStatus());
+                int exitStatus = channel.getExitStatus();
+                log.info("Command Exit Status: {}", exitStatus);
+                if (exitStatus != 0) {
+                    throw new RuntimeException("SSH command failed (exit " + exitStatus + "): " + command);
+                }
                 break;
             }
 

@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface MiddlewareRepository extends JpaRepository<MiddlewareEntity, Long> {
     List<MiddlewareEntity> findByMiddlewareType(String type);
-    MiddlewareEntity findByMiddlewareNameAndVersion(String name, String version);
-    MiddlewareEntity findTopByMiddlewareNameOrderByVersionOrderDesc(String name);
+    MiddlewareEntity findByMiddlewareNameIgnoreCaseAndVersion(String name, String version);
+    MiddlewareEntity findTopByMiddlewareNameIgnoreCaseOrderByVersionOrderDesc(String name);
     List<MiddlewareEntity> findByIsSimpleInstall(String isSimpleInstall);
 
 

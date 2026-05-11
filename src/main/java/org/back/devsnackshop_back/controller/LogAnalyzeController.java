@@ -7,6 +7,7 @@ import org.back.devsnackshop_back.dto.elastic.request.MetricsRequest;
 import org.back.devsnackshop_back.entity.elastic.LogAnalyzeDocument;
 import org.back.devsnackshop_back.service.LogAnalyzeService;
 import org.back.devsnackshop_back.service.MetricsService;
+import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,9 +61,11 @@ public class LogAnalyzeController {
 
     @GetMapping("/analyze/{serverId}/recent")
     public ResponseEntity<?> getLogAnalyzeRecent(@PathVariable Long serverId) {
-        return ResponseEntity.ok(
-                logAnalyzeService.getLogAnalyzeRecent(serverId)
-        );
+        try {
+            return ResponseEntity.ok(logAnalyzeService.getLogAnalyzeRecent(serverId));
+        } catch (NoSuchIndexException e) {
+            return ResponseEntity.ok(List.of());
+        }
     }
 
 }

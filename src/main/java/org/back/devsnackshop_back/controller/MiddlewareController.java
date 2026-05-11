@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/middleware")
@@ -20,12 +21,16 @@ public class MiddlewareController {
     private final InstallMiddlewareService installMiddleware;
 
     @PostMapping(value = "/install")
-    public ResponseEntity<?> requestInstall(@RequestBody InstallRequest dto) {
-        installMiddleware.installMiddleware(dto);
-
-        return ResponseEntity.accepted().body(Map.of(
-                "message", "설치 작업이 백그라운드에서 시작되었습니다."
-        ));
+    public CompletableFuture<ResponseEntity<?>> requestInstall(@RequestBody InstallRequest dto) {
+        return installMiddleware.installMiddleware(dto)
+                .handle((result, ex) -> {
+                    if (ex != null) {
+                        Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                        return (ResponseEntity<?>) ResponseEntity.internalServerError()
+                                .body(Map.of("error", "설치 중 오류가 발생했습니다: " + cause.getMessage()));
+                    }
+                    return (ResponseEntity<?>) ResponseEntity.ok(result);
+                });
     }
 
     @GetMapping("/simple/list")
@@ -52,4 +57,8 @@ public class MiddlewareController {
         }
     }
 
+    @GetMapping("/install/status")
+    public ResponseEntity<?> getInstallStatus(@RequestParam Long userOsId) {
+        return ResponseEntity.ok(middlewareService.getInstallStatus(userOsId));
+    }
 }
